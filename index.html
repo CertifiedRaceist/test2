@@ -95,6 +95,7 @@ button{
   <div class="row2">
     <div class="field">
       <label>Data dostawy / Delivery date</label>
+      <!-- native calendar popup -->
       <input type="date" id="termin">
     </div>
     <div class="field">
@@ -118,7 +119,7 @@ button{
 
   <div class="field">
     <label>Liczba palet / Number of pallets</label>
-    <input type="number" id="palety" min="0" value="0">
+    <input type="number" id="palety" min="0" max="999" value="0">
   </div>
 
   <div class="field">
@@ -141,6 +142,8 @@ button{
 <script>
 const KEY="awizacja_endpoint";
 const status=document.getElementById("status");
+
+// today preselected
 termin.valueAsDate=new Date();
 
 function setEndpoint(){
@@ -174,15 +177,24 @@ async function sendForm(){
   if(!godzina.value)
     return show("err","Wybierz godzinę");
 
-  if(palety.value < 0)
-    return show("err","Niepoprawna liczba palet");
+  if(palety.value < 0 || palety.value > 999)
+    return show("err","Palety: 0–999");
+
+  const supplier =
+    dostawca.value
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g,"_");
+
+  const palletsValue =
+    Number(palety.value) === 0 ? "-" : Number(palety.value);
 
   const data={
-    dostawca:dostawca.value.trim(),
-    termin:toDDMMYYYY(termin.value),
-    godzina:godzina.value,
-    palety:Number(palety.value),
-    info:info.value
+    dostawca: supplier,
+    termin: toDDMMYYYY(termin.value),
+    godzina: godzina.value,
+    palety: palletsValue,
+    info: info.value
   };
 
   try{
