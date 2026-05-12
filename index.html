@@ -14,20 +14,14 @@
   --text:#ffffff;
   --muted:#a0a6b8;
   --accent:#4f7cff;
-  --accent-hover:#6b92ff;
   --ok:#2ecc71;
   --err:#ff5c5c;
   --radius:12px;
 }
-
 *{box-sizing:border-box;margin:0;padding:0}
-
 body{
   min-height:100vh;
-  background:
-    radial-gradient(1200px 600px at 10% -10%, #182040, transparent),
-    radial-gradient(800px 400px at 90% 10%, #0f2a2a, transparent),
-    var(--bg);
+  background:var(--bg);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -35,46 +29,17 @@ body{
   font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   color:var(--text);
 }
-
 .card{
   width:100%;
   max-width:720px;
-  background:linear-gradient(180deg,#171c2b,#121624);
+  background:var(--card);
   border:1px solid var(--border);
   border-radius:var(--radius);
   padding:36px;
-  box-shadow:0 30px 60px rgba(0,0,0,.45);
 }
-
-.header{
-  margin-bottom:28px;
-}
-.header h1{
-  font-size:2rem;
-  margin-bottom:6px;
-}
-.header p{
-  color:var(--muted);
-  font-size:.95rem;
-}
-
-hr{
-  border:none;
-  border-top:1px solid var(--border);
-  margin:24px 0;
-}
-
-.field{
-  margin-bottom:18px;
-}
-label{
-  display:block;
-  font-size:.85rem;
-  color:var(--muted);
-  margin-bottom:6px;
-}
-
-input{
+.field{margin-bottom:18px}
+label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:6px}
+input,select{
   width:100%;
   background:var(--bg-soft);
   border:1px solid var(--border);
@@ -83,57 +48,25 @@ input{
   color:var(--text);
   font-size:.95rem;
 }
-
-input:focus{
-  outline:none;
-  border-color:var(--accent);
-  box-shadow:0 0 0 2px rgba(79,124,255,.25);
-}
-
-.row2{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-}
-
-small{
-  display:block;
-  margin-top:6px;
-  color:var(--muted);
-  font-size:.75rem;
-}
-
-.actions{
-  margin-top:26px;
-  display:flex;
-  gap:14px;
-}
-
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.actions{margin-top:26px;display:flex;gap:14px}
 button{
   cursor:pointer;
   border-radius:12px;
   padding:14px 22px;
   font-size:1rem;
 }
-
 .primary{
   flex:1;
   background:transparent;
   color:var(--text);
   border:1px solid var(--accent);
-  transition:.2s;
 }
-.primary:hover{
-  background:var(--accent);
-  box-shadow:0 0 0 4px rgba(79,124,255,.25);
-}
-
 .secondary{
   background:transparent;
   color:var(--muted);
   border:1px solid var(--border);
 }
-
 .status{
   margin-top:20px;
   padding:14px 16px;
@@ -141,63 +74,47 @@ button{
   display:none;
   font-size:.9rem;
 }
-.status.ok{
-  display:block;
-  background:rgba(46,204,113,.15);
-  color:var(--ok);
-  border:1px solid rgba(46,204,113,.35);
-}
-.status.err{
-  display:block;
-  background:rgba(255,92,92,.15);
-  color:var(--err);
-  border:1px solid rgba(255,92,92,.35);
-}
-
-.footer{
-  margin-top:22px;
-  display:flex;
-  justify-content:space-between;
-  font-size:.7rem;
-  color:var(--muted);
-}
-
-@media(max-width:600px){
-  .row2{grid-template-columns:1fr}
-}
+.status.ok{display:block;background:rgba(46,204,113,.15);color:var(--ok)}
+.status.err{display:block;background:rgba(255,92,92,.15);color:var(--err)}
 </style>
 </head>
 
 <body>
 
 <div class="card">
-  <div class="header">
-    <h1>Awizacje DPH</h1>
-    <p>Stwórz awizację / Create delivery notification</p>
-  </div>
+  <h1>Awizacje DPH</h1>
+  <p style="color:var(--muted)">Stwórz awizację / Create delivery notification</p>
 
-  <hr/>
+  <hr style="margin:24px 0;border:0;border-top:1px solid var(--border)"/>
 
   <div class="field">
     <label>Dostawca / Supplier</label>
-    <input id="dostawca" placeholder="Wybierz dostawcę"/>
+    <input id="dostawca">
   </div>
 
   <div class="row2">
     <div class="field">
       <label>Data dostawy / Delivery date</label>
-      <input type="date" id="termin"/>
+      <input type="date" id="termin">
     </div>
     <div class="field">
-      <label>Godzina / Time slot</label>
-      <input type="time" id="godzina"/>
+      <label>Godzina / Time</label>
+      <input type="time" id="godzina">
     </div>
   </div>
 
   <div class="field">
     <label>Liczba palet / Number of pallets</label>
-    <input type="number" id="palety" min="0" value="0"/>
-    <small>0 jeśli nie dotyczy / 0 if not applicable</small>
+    <input type="number" id="palety" min="0" value="0">
+  </div>
+
+  <div class="field">
+    <label>Informacja / Info</label>
+    <select id="info">
+      <option value="info 1">info 1</option>
+      <option value="info 2">info 2</option>
+      <option value="info 3">info 3</option>
+    </select>
   </div>
 
   <div class="actions">
@@ -206,49 +123,53 @@ button{
   </div>
 
   <div class="status" id="status"></div>
-
-  <div class="footer">
-    <span>Trucker · Awizacja</span>
-    <span id="endpointInfo">— brak endpointu —</span>
-  </div>
 </div>
 
 <script>
 const KEY="awizacja_endpoint";
 const status=document.getElementById("status");
-const info=document.getElementById("endpointInfo");
-
-document.getElementById("termin").valueAsDate=new Date();
-loadEndpoint();
+termin.valueAsDate=new Date();
 
 function setEndpoint(){
   const url=prompt("Endpoint URL:",localStorage.getItem(KEY)||"");
   if(url!==null){
     if(url.trim()) localStorage.setItem(KEY,url.trim());
     else localStorage.removeItem(KEY);
-    loadEndpoint();
   }
-}
-
-function loadEndpoint(){
-  const v=localStorage.getItem(KEY)||"";
-  info.textContent=v||"— brak endpointu —";
 }
 
 function show(type,msg){
   status.className="status "+type;
-  status.innerHTML=msg;
+  status.textContent=msg;
+}
+
+function toDDMMYYYY(iso){
+  const [y,m,d]=iso.split("-");
+  return `${d}-${m}-${y}`;
 }
 
 async function sendForm(){
   const ep=localStorage.getItem(KEY);
   if(!ep) return show("err","Brak endpointu");
 
+  if(!dostawca.value.trim())
+    return show("err","Podaj dostawcę");
+
+  if(!termin.value)
+    return show("err","Wybierz datę");
+
+  if(!godzina.value)
+    return show("err","Wybierz godzinę");
+
+  if(palety.value < 0)
+    return show("err","Niepoprawna liczba palet");
+
   const data={
-    dostawca:dostawca.value,
-    termin:termin.value,
+    dostawca:dostawca.value.trim(),
+    termin:toDDMMYYYY(termin.value), // ✅ dd-mm-yyyy
     godzina:godzina.value,
-    palety:Number(palety.value)
+    palety:Number(palety.value),
+    info:info.value
   };
 
   try{
@@ -268,4 +189,3 @@ async function sendForm(){
 
 </body>
 </html>
-``
