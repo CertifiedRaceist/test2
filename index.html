@@ -77,7 +77,6 @@ button{
 .status.ok{display:block;background:rgba(46,204,113,.15);color:var(--ok)}
 .status.err{display:block;background:rgba(255,92,92,.15);color:var(--err)}
 
-/* ✅ light‑blue calendar icon */
 input[type="date"]::-webkit-calendar-picker-indicator{
   filter: invert(48%) sepia(90%) saturate(400%) hue-rotate(190deg);
   cursor: pointer;
@@ -183,18 +182,11 @@ async function sendForm(){
   if(palety.value < 0 || palety.value > 999)
     return show("err","Palety: 0–999");
 
-  const supplier =
-    dostawca.value.trim().toUpperCase().replace(/\s+/g,"_");
-
-  // ✅ ALWAYS string
-  const palletsValue =
-    palety.value === "0" ? "-" : String(palety.value);
-
   const data={
-    dostawca: supplier,
+    dostawca: dostawca.value.trim().toUpperCase().replace(/\s+/g,"_"),
     termin: toDDMMYYYY(termin.value),
     godzina: godzina.value,
-    palety: palletsValue,
+    palety: Number(palety.value),   // ✅ ONLY NUMBER
     info: info.value
   };
 
