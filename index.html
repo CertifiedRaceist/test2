@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Awizacja Dostawy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Mulish:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:        #f5f2eb;
+    --paper:     #fdfaf4;
+    --ink:       #1a1812;
+    --ink-light: #6b6555;
+    --rule:      #ddd8cc;
+    --accent:    #c8401a;
+    --accent-dk: #a33215;
+    --ok:        #2a7a4b;
+    --radius:    4px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 27px,
+        var(--rule) 27px,
+        var(--rule) 28px
+      );
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px 80px;
+    font-family: 'Mulish', sans-serif;
+    color: var(--ink);
+  }
+
+  /* ── Stamp decoration ── */
+  .stamp-wrap {
+    position: fixed;
+    top: 24px;
+    right: 28px;
+    opacity: 0.07;
+    pointer-events: none;
+    transform: rotate(12deg);
+  }
+  .stamp {
+    width: 110px;
+    height: 110px;
+    border: 6px solid var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    line-height: 1.3;
+    padding: 12px;
+  }
+
+  /* ── Container ── */
+  .sheet {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-top: 4px solid var(--ink);
+    width: 100%;
+    max-width: 560px;
+    padding: 48px 48px 40px;
+    box-shadow: 6px 6px 0 var(--rule), 12px 12px 0 rgba(0,0,0,0.04);
+    animation: slideUp 0.55s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Header ── */
+  .sheet-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 18px;
+    margin-bottom: 36px;
+  }
+
+  .doc-meta { display: flex; flex-direction: column; gap: 2px; }
+
+  .doc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    color: var(--ink-light);
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 7vw, 3rem);
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .doc-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--ink-light);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  /* ── Fields ── */
+  .field {
+    margin-bottom: 26px;
+    animation: fadeIn 0.4s ease both;
+  }
+  .field:nth-child(1) { animation-delay: 0.05s; }
+  .field:nth-child(2) { animation-delay: 0.10s; }
+  .field:nth-child(3) { animation-delay: 0.15s; }
+  .field:nth-child(4) { animation-delay: 0.20s; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.67rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 6px;
+  }
+
+  label .field-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    font-size: 0.6rem;
+    color: var(--ink);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+
+  input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid var(--rule);
+    border-radius: 0;
+    padding: 9px 0 9px 2px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  input:focus { border-bottom-color: var(--accent); }
+  input::placeholder { font-weight: 300; color: var(--rule); }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  /* ── Submit ── */
+  .submit-row {
+    margin-top: 36px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-top: 1px dashed var(--rule);
+    padding-top: 28px;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 14px 20px;
+    background: var(--ink);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn:hover  { background: var(--accent); border-color: var(--accent); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: var(--rule); border-color: var(--rule); color: var(--ink-light); cursor: not-allowed; }
+
+  .btn-inner { display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(253,250,244,0.3);
+    border-top-color: var(--paper);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── URL config link ── */
+  .config-btn {
+    background: none;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    cursor: pointer;
+    color: var(--ink-light);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: border-color 0.18s, color 0.18s;
+    white-space: nowrap;
+  }
+  .config-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* ── URL modal ── */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,24,18,0.55);
+    backdrop-filter: blur(2px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-top: 3px solid var(--ink);
+    padding: 32px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 6px 6px 0 var(--rule);
+    animation: slideUp 0.3s ease both;
+  }
+
+  .modal h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+
+  .modal p {
+    font-size: 0.82rem;
+    color: var(--ink-light);
+    margin-bottom: 20px;
+    line-height: 1.55;
+  }
+
+  .modal input {
+    border: 1.5px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+  }
+  .modal input:focus { border-color: var(--accent); }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+
+  .modal-actions .btn-save {
+    flex: 1;
+    padding: 11px;
+    background: var(--ink);
+    color: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .modal-actions .btn-save:hover { background: var(--accent); border-color: var(--accent); }
+
+  .modal-actions .btn-cancel {
+    padding: 11px 18px;
+    background: transparent;
+    border: 1.5px solid var(--rule);
+    border-radius: var(--radius);
+    font-family: 'Mulish', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: var(--ink-light);
+    transition: border-color 0.15s;
+  }
+  .modal-actions .btn-cancel:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* ── Status messages ── */
+  .status {
+    margin-top: 20px;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: none;
+    align-items: flex-start;
+    gap: 10px;
+    border-left: 3px solid;
+    animation: fadeIn 0.3s ease both;
+  }
+  .status.success { display: flex; background: #edf7f2; border-color: var(--ok); color: var(--ok); }
+  .status.error   { display: flex; background: #fdf0ed; border-color: var(--accent); color: var(--accent-dk); }
+
+  .status-icon { font-size: 1rem; flex-shrink: 0; }
+  .status-msg  { line-height: 1.5; }
+
+  /* ── Footer ── */
+  .sheet-footer {
+    margin-top: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--rule);
+    padding-top: 14px;
+  }
+
+  .footer-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--rule);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .url-indicator {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--ink-light);
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  @media (max-width: 520px) {
+    .sheet { padding: 32px 24px 28px; }
+    .row2 { grid-template-columns: 1fr; gap: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stamp-wrap">
+  <div class="stamp">AWIZACJA<br/>DOSTAWY</div>
+</div>
+
+<div class="sheet">
+
+  <div class="sheet-header">
+    <div class="doc-meta">
+      <span class="doc-label">Formularz</span>
+      <h1>AWIZACJA</h1>
+    </div>
+    <div class="doc-number">
+      <span id="docDate"></span><br/>
+      <span style="color:var(--rule)">━━━━━━━━</span>
+    </div>
+  </div>
+
+  <!-- Pola formularza -->
+  <div class="field">
+    <label><span class="field-num">1</span>Nazwa dostawcy</label>
+    <input type="text" id="dostawca" placeholder="np. Kowalski Logistics Sp. z o.o." autocomplete="organization"/>
+  </div>
+
+  <div class="row2">
+    <div class="field">
+      <label><span class="field-num">2</span>Termin dostawy</label>
+      <input type="date" id="termin"/>
+    </div>
+    <div class="field">
+      <label><span class="field-num">3</span>Godzina</label>
+      <input type="time" id="godzina"/>
+    </div>
+  </div>
+
+  <div class="field">
+    <label><span class="field-num">4</span>Ilość palet</label>
+    <input type="number" id="palety" placeholder="np. 12" min="1" max="9999"/>
+  </div>
+
+  <!-- Status -->
+  <div class="status" id="statusBox">
+    <span class="status-icon" id="statusIcon"></span>
+    <span class="status-msg" id="statusMsg"></span>
+  </div>
+
+  <!-- Przyciski -->
+  <div class="submit-row">
+    <button class="btn" id="sendBtn" onclick="sendForm()">
+      <span class="btn-inner" id="btnContent">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        Wyślij awizację
+      </span>
+    </button>
+    <button class="config-btn" onclick="openModal()">⚙ Endpoint</button>
+  </div>
+
+  <div class="sheet-footer">
+    <span class="footer-tag">Trucker · System Awizacji</span>
+    <span class="url-indicator" id="urlIndicator">— brak adresu —</span>
+  </div>
+</div>
+
+<!-- Modal konfiguracji URL -->
+<div class="overlay" id="overlay" onclick="closeOnBackdrop(event)">
+  <div class="modal">
+    <h2>Adres Endpoint</h2>
+    <p>Wpisz pełny URL, na który formularz wyśle dane jako HTTP POST z JSON.<br/>
+       Adres jest zapisywany lokalnie w przeglądarce.</p>
+    <input type="url" id="urlInput" placeholder="https://twoja-funkcja.cloudfunctions.net/..."/>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveUrl()">Zapisz</button>
+      <button class="btn-cancel" onclick="closeModal()">Anuluj</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Inicjalizacja ──────────────────────────────────────────────────────────
+
+  const LS_KEY = "awizacja_endpoint_url";
+
+  // Data w nagłówku
+  document.getElementById("docDate").textContent =
+    new Date().toLocaleDateString("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+  // Domyślna data = dziś
+  document.getElementById("termin").valueAsDate = new Date();
+
+  // Załaduj zapisany URL
+  loadUrl();
+
+  // ── URL modal ──────────────────────────────────────────────────────────────
+
+  function loadUrl() {
+    const saved = localStorage.getItem(LS_KEY) || "";
+    document.getElementById("urlInput").value = saved;
+    document.getElementById("urlIndicator").textContent = saved || "— brak adresu —";
+  }
+
+  function openModal() {
+    document.getElementById("overlay").classList.add("open");
+    setTimeout(() => document.getElementById("urlInput").focus(), 80);
+  }
+
+  function closeModal() {
+    document.getElementById("overlay").classList.remove("open");
+  }
+
+  function closeOnBackdrop(e) {
+    if (e.target === document.getElementById("overlay")) closeModal();
+  }
+
+  function saveUrl() {
+    const val = document.getElementById("urlInput").value.trim();
+    if (val) {
+      localStorage.setItem(LS_KEY, val);
+    } else {
+      localStorage.removeItem(LS_KEY);
+    }
+    document.getElementById("urlIndicator").textContent = val || "— brak adresu —";
+    closeModal();
+  }
+
+  // Zamknij na Escape
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+  // ── Wysyłka formularza ─────────────────────────────────────────────────────
+
+  async function sendForm() {
+    const dostawca = document.getElementById("dostawca").value.trim();
+    const termin   = document.getElementById("termin").value;
+    const godzina  = document.getElementById("godzina").value;
+    const palety   = document.getElementById("palety").value;
+    const endpoint = localStorage.getItem(LS_KEY) || "";
+
+    // Walidacja
+    if (!endpoint) {
+      showStatus("error", "⚠", "Nie skonfigurowano adresu endpoint. Kliknij przycisk <strong>⚙ Endpoint</strong>.");
+      return;
+    }
+    if (!dostawca) { showStatus("error", "⚠", "Podaj nazwę dostawcy."); return; }
+    if (!termin)   { showStatus("error", "⚠", "Wybierz termin dostawy."); return; }
+    if (!godzina)  { showStatus("error", "⚠", "Podaj godzinę dostawy."); return; }
+    if (!palety || parseInt(palety) <= 0) { showStatus("error", "⚠", "Podaj prawidłową liczbę palet."); return; }
+
+    const payload = {
+      dostawca: dostawca,
+      termin:   termin,
+      godzina:  godzina,
+      palety:   parseInt(palety)
+    };
+
+    setLoading(true);
+    hideStatus();
+
+    try {
+      const res = await fetch(endpoint, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        showStatus("success", "✓",
+          `Awizacja wysłana pomyślnie.<br/>
+           <span style="font-weight:400;font-size:0.8em;opacity:0.85">
+             ${dostawca} · ${termin} · ${godzina} · ${palety} palet
+           </span>`
+        );
+        // Opcjonalnie wyczyść pola po sukcesie
+        // clearForm();
+      } else {
+        const txt = await res.text().catch(() => "");
+        showStatus("error", "✗", `Serwer zwrócił błąd ${res.status}${txt ? ": " + txt.slice(0,120) : "."}`);
+      }
+
+    } catch (err) {
+      showStatus("error", "✗",
+        "Nie można połączyć się z serwerem. Sprawdź adres endpoint oraz połączenie internetowe."
+      );
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  function setLoading(on) {
+    const btn = document.getElementById("sendBtn");
+    btn.disabled = on;
+    document.getElementById("btnContent").innerHTML = on
+      ? `<div class="spinner"></div> Wysyłanie…`
+      : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+           <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+         </svg> Wyślij awizację`;
+  }
+
+  function showStatus(type, icon, html) {
+    const box = document.getElementById("statusBox");
+    box.className = "status " + type;
+    document.getElementById("statusIcon").textContent = icon;
+    document.getElementById("statusMsg").innerHTML = html;
+  }
+
+  function hideStatus() {
+    document.getElementById("statusBox").className = "status";
+  }
+
+  function clearForm() {
+    document.getElementById("dostawca").value = "";
+    document.getElementById("termin").valueAsDate = new Date();
+    document.getElementById("godzina").value = "";
+    document.getElementById("palety").value = "";
+  }
+</script>
+</body>
+</html>
