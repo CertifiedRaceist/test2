@@ -168,19 +168,21 @@ function toDDMMYYYY(iso){
 
 async function sendForm(){
   const ep=localStorage.getItem(KEY);
-  if(!ep) return show("err","Brak endpointu");
+
+  if(!ep)
+    return show("err","Brak endpointu / No endpoint configured");
 
   if(!dostawca.value.trim())
-    return show("err","Podaj dostawcę");
+    return show("err","Podaj dostawcę / Enter supplier");
 
   if(!termin.value)
-    return show("err","Wybierz datę");
+    return show("err","Wybierz datę / Select delivery date");
 
   if(!godzina.value)
-    return show("err","Wybierz godzinę");
+    return show("err","Wybierz godzinę / Select time slot");
 
   if(palety.value < 0 || palety.value > 999)
-    return show("err","Palety: 0–999");
+    return show("err","Palety: 0–999 / Pallets: 0–999");
 
   const data={
     dostawca: dostawca.value.trim().toUpperCase().replace(/\s+/g,"_"),
@@ -196,11 +198,13 @@ async function sendForm(){
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify(data)
     });
+
     r.ok
-      ? show("ok","✓ Awizacja wysłana")
-      : show("err","✗ Błąd serwera");
+      ? show("ok","✓ Awizacja wysłana / ✓ Notification sent")
+      : show("err","✗ Błąd serwera / ✗ Server error");
+
   }catch{
-    show("err","✗ Brak połączenia");
+    show("err","✗ Brak połączenia / ✗ No connection");
   }
 }
 </script>
