@@ -362,20 +362,6 @@ async function generate(){
 
   show("ok", "✓ Pobierz PDF i wyślij e‑mail ręcznie");
 }
-
-  /* ---------- FALLBACK ---------- */
-  pdf.save("awizacja_dostawy.pdf");
-
-  const mailto =
-    "mailto:" + encodeURIComponent(EMAIL_TO) +
-    "?subject=" + encodeURIComponent(EMAIL_SUBJECT) +
-    "&body=" + encodeURIComponent(EMAIL_BODY);
-
-  window.location.href = mailto;
-
-  show("ok","✓ Pobierz PDF i wyślij e‑mail ręcznie");
-}
-
 </script>
 
 </body>
