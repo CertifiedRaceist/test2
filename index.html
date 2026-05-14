@@ -21,7 +21,6 @@
   --accent:#4f7cff;
   --ok:#2ecc71;
   --err:#ff5c5c;
-  --radius:12px;
 }
 *{box-sizing:border-box}
 body{
@@ -40,7 +39,7 @@ body{
   max-width:720px;
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:var(--radius);
+  border-radius:12px;
   padding:36px;
 }
 .field{margin-bottom:18px}
@@ -134,7 +133,6 @@ button{
   </div>
 
   <button onclick="generate()">Potwierdź / Generate</button>
-
   <div class="status" id="status"></div>
 </div>
 
@@ -144,7 +142,7 @@ button{
 date.valueAsDate = new Date();
 const statusBox = document.getElementById("status");
 
-/* ---------------- SANITIZE ---------------- */
+/* ---------- SANITIZE ---------- */
 
 function sanitizeSupplier(v){
   return v
@@ -162,40 +160,48 @@ function sanitizeInfo(v){
     .slice(0,80);
 }
 
-/* ---------------- BASE64 ENCODER ---------------- */
-/* FORMAT: >40s I B H B <info> */
+/* ---------- ENCODER ---------- */
+/*
+ FORMAT:
+ [1] supplier_len
+ [N] supplier
+ [4] date_days
+ [1] slot
+ [2] pallets
+ [1] info_len
+ [M] info
+*/
 
 function encodeDeliveryBase64(supplier, dateISO, hour, pallets, info){
+
   const sup = sanitizeSupplier(supplier);
   const inf = sanitizeInfo(info);
 
-  const infoBytes = new TextEncoder().encode(inf);
-  const infoLen = infoBytes.length;
+  const supBytes = new TextEncoder().encode(sup);
+  const infBytes = new TextEncoder().encode(inf);
 
-  const buf = new ArrayBuffer(40 + 4 + 1 + 2 + 1 + infoLen);
+  const buf = new ArrayBuffer(
+    1 + supBytes.length + 4 + 1 + 2 + 1 + infBytes.length
+  );
+
   const view = new DataView(buf);
   let o = 0;
 
-  new Uint8Array(buf,o,40).set(new TextEncoder().encode(sup));
-  o += 40;
+  view.setUint8(o, supBytes.length); o += 1;
+  new Uint8Array(buf,o,supBytes.length).set(supBytes); o += supBytes.length;
 
   const epoch = new Date("1970-01-01");
   const days = Math.floor((new Date(dateISO) - epoch) / 86400000);
-  view.setUint32(o, days);
-  o += 4;
+  view.setUint32(o, days); o += 4;
 
   const [h,m] = hour.split(":").map(Number);
   const slot = ((h*60+m)-480)/15;
-  view.setUint8(o, slot);
-  o += 1;
+  view.setUint8(o, slot); o += 1;
 
-  view.setUint16(o, pallets===0?0:pallets);
-  o += 2;
+  view.setUint16(o, pallets===0?0:pallets); o += 2;
 
-  view.setUint8(o, infoLen);
-  o += 1;
-
-  new Uint8Array(buf,o,infoLen).set(infoBytes);
+  view.setUint8(o, infBytes.length); o += 1;
+  new Uint8Array(buf,o,infBytes.length).set(infBytes);
 
   return btoa(String.fromCharCode(...new Uint8Array(buf)))
     .replace(/\+/g,"-")
@@ -203,7 +209,7 @@ function encodeDeliveryBase64(supplier, dateISO, hour, pallets, info){
     .replace(/=+$/,"");
 }
 
-/* ---------------- UI ---------------- */
+/* ---------- UI ---------- */
 
 function show(type,msg){
   statusBox.className="status "+type;
@@ -234,7 +240,6 @@ function generate(){
 
   pdf.setFontSize(16);
   pdf.text("AWIZACJA DOSTAWY / DELIVERY NOTIFICATION",20,20);
-
   pdf.setFontSize(12);
   pdf.text("Supplier: "+sanitizeSupplier(supplier.value),20,35);
   pdf.text("Date: "+date.value,20,45);
