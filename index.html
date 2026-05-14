@@ -37,7 +37,6 @@ body{
 }
 
 /* LAYOUT */
-
 .wrapper{
   width:100%;
   max-width:1600px;
@@ -45,15 +44,11 @@ body{
   grid-template-columns: 0.9fr 2.0fr;
   gap:32px;
 }
-
 @media (max-width: 900px){
-  .wrapper{
-    grid-template-columns:1fr;
-  }
+  .wrapper{grid-template-columns:1fr}
 }
 
 /* CARDS */
-
 .card{
   background:var(--card);
   border:1px solid var(--border);
@@ -63,32 +58,11 @@ body{
 }
 
 /* LEFT INFO */
-
-.info-title{
-  font-size:1.3rem;
-  margin-bottom:18px;
-}
-
-.info-list{
-  padding-left:18px;
-}
-
-.info-list li{
-  margin-bottom:18px;
-  line-height:1.55;
-}
-
-.info-muted{
-  color:var(--muted);
-  font-size:.95rem;
-}
-
-.info-img{
-  margin-top:26px;
-  display:flex;
-  justify-content:center;
-}
-
+.info-title{font-size:1.3rem;margin-bottom:18px}
+.info-list{padding-left:18px}
+.info-list li{margin-bottom:18px;line-height:1.55}
+.info-muted{color:var(--muted);font-size:.95rem}
+.info-img{margin-top:26px;display:flex;justify-content:center}
 .info-img img{
   width:96%;
   border-radius:18px;
@@ -99,16 +73,8 @@ body{
 }
 
 /* FORM */
-
 .field{margin-bottom:22px}
-
-label{
-  display:block;
-  font-size:1rem;
-  color:var(--muted);
-  margin-bottom:8px;
-}
-
+label{display:block;font-size:1rem;color:var(--muted);margin-bottom:8px}
 input,select{
   width:100%;
   background:var(--bg-soft);
@@ -118,13 +84,7 @@ input,select{
   color:var(--text);
   font-size:1.05rem;
 }
-
-.row2{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
-}
-
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 button{
   width:100%;
   padding:18px;
@@ -135,35 +95,15 @@ button{
   cursor:pointer;
   font-size:1.05rem;
 }
-
-.lang-btn{
-  width:auto;
-  padding:8px 14px;
-  font-size:.9rem;
-  margin-bottom:14px;
-}
-
-.status{
-  margin-top:24px;
-  padding:18px;
-  border-radius:14px;
-  display:none;
-}
-
-  
-input[type="date"]::-webkit-calendar-picker-indicator{
-  filter:
-    invert(48%)
-    sepia(90%)
-    saturate(500%)
-    hue-rotate(185deg)
-    brightness(100%);
-  cursor: pointer;
-}
-
-
+.lang-btn{width:auto;padding:8px 14px;font-size:.9rem;margin-bottom:14px}
+.status{margin-top:24px;padding:18px;border-radius:14px;display:none}
 .status.ok{display:block;background:rgba(46,204,113,.15);color:var(--ok)}
 .status.err{display:block;background:rgba(255,92,92,.15);color:var(--err)}
+
+input[type="date"]::-webkit-calendar-picker-indicator{
+  filter: invert(48%) sepia(90%) saturate(500%) hue-rotate(185deg) brightness(100%);
+  cursor:pointer;
+}
 </style>
 </head>
 
@@ -171,20 +111,17 @@ input[type="date"]::-webkit-calendar-picker-indicator{
 
 <div class="wrapper">
 
-  <!-- LEFT INFORMATION -->
+  <!-- LEFT -->
   <div class="card">
     <div class="info-title" id="infoTitle"></div>
-
     <ul class="info-list" id="infoList"></ul>
-
     <div class="info-img">
       <img src="epal.png" alt="EPAL pallet">
     </div>
   </div>
 
-  <!-- RIGHT FORM -->
+  <!-- RIGHT -->
   <div class="card">
-
     <div style="text-align:right">
       <button class="lang-btn" id="langToggle" onclick="toggleLang()">EN</button>
     </div>
@@ -236,233 +173,132 @@ input[type="date"]::-webkit-calendar-picker-indicator{
     <button onclick="generate()" data-i18n="generate"></button>
     <div class="status" id="status"></div>
   </div>
-
 </div>
 
+<div id="qr" style="display:none"></div>
+
 <script>
-let lang = "pl";
-const statusBox = document.getElementById("status");
+let lang="pl";
+const statusBox=document.getElementById("status");
 
-/* ================= TRANSLATIONS ================= */
-
-const I18N = {
-  pl: {
-    title: "Awizacje DPH",
-    subtitle: "Stwórz awizację",
-    supplier: "Dostawca",
-    date: "Data dostawy",
-    hour: "Godzina",
-    pallets: "Liczba palet (wpisz „-” jeśli nie dotyczy)",
-    info: "Informacja",
-    generate: "Potwierdź",
-
-    ok: "✓ Awizacja wygenerowana",
-    err_supplier: "Podaj dostawcę",
-    err_date: "Wybierz datę",
-    err_hour: "Wybierz godzinę",
-    err_pallets: "Palety: wpisz „-” lub liczbę ≥ 1",
-
-    infoTitle: "Informacje",
-    infoItems: [
+const I18N={
+  pl:{
+    title:"Awizacje DPH",
+    subtitle:"Stwórz awizację",
+    supplier:"Dostawca",
+    date:"Data dostawy",
+    hour:"Godzina",
+    pallets:"Liczba palet (wpisz „-” jeśli nie dotyczy)",
+    info:"Informacja",
+    generate:"Potwierdź",
+    ok:"✓ Awizacja wygenerowana",
+    err_supplier:"Podaj dostawcę",
+    err_date:"Wybierz datę",
+    err_hour:"Wybierz godzinę",
+    err_pallets:"Palety: wpisz „-” lub liczbę ≥ 1",
+    infoTitle:"Informacje",
+    infoItems:[
       "<b>Finalna data i godzina rozładunku</b> zostaną podane przez <b>DELPHARM</b>",
       "<b>Przyjmujemy tylko palety EUR / EPAL</b>"
     ]
   },
-
-  en: {
-    title: "DPH Notifications",
-    subtitle: "Create delivery notification",
-    supplier: "Supplier",
-    date: "Delivery date",
-    hour: "Time slot",
-    pallets: "Number of pallets (type “-” if not applicable)",
-    info: "Information",
-    generate: "Generate",
-
-    ok: "✓ Notification generated",
-    err_supplier: "Enter supplier",
-    err_date: "Select delivery date",
-    err_hour: "Select time slot",
-    err_pallets: "Pallets: type “-” or number ≥ 1",
-
-    infoTitle: "Information",
-    infoItems: [
+  en:{
+    title:"DPH Notifications",
+    subtitle:"Create delivery notification",
+    supplier:"Supplier",
+    date:"Delivery date",
+    hour:"Time slot",
+    pallets:"Number of pallets (type “-” if not applicable)",
+    info:"Information",
+    generate:"Generate",
+    ok:"✓ Notification generated",
+    err_supplier:"Enter supplier",
+    err_date:"Select delivery date",
+    err_hour:"Select time slot",
+    err_pallets:"Pallets: type “-” or number ≥ 1",
+    infoTitle:"Information",
+    infoItems:[
       "<b>Final unloading date and time</b> will be provided by <b>DELPHARM</b>",
       "<b>We accept EUR / EPAL pallets only</b>"
     ]
   }
 };
 
-/* ================= LANGUAGE ================= */
-
 function applyLang(){
-  document.querySelectorAll("[data-i18n]").forEach(el => {
-    el.textContent = I18N[lang][el.dataset.i18n];
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    el.textContent=I18N[lang][el.dataset.i18n];
   });
-
-  document.getElementById("langToggle").textContent =
-    lang === "pl" ? "EN" : "PL";
-
-  document.getElementById("infoTitle").textContent =
-    I18N[lang].infoTitle;
-
-  const list = document.getElementById("infoList");
-  list.innerHTML = "";
-  I18N[lang].infoItems.forEach(t => {
-    const li = document.createElement("li");
-    li.innerHTML = t;
+  document.getElementById("langToggle").textContent=lang==="pl"?"EN":"PL";
+  document.getElementById("infoTitle").textContent=I18N[lang].infoTitle;
+  const list=document.getElementById("infoList");
+  list.innerHTML="";
+  I18N[lang].infoItems.forEach(t=>{
+    const li=document.createElement("li");
+    li.innerHTML=t;
     list.appendChild(li);
   });
 }
-
-function toggleLang(){
-  lang = lang === "pl" ? "en" : "pl";
-  applyLang();
-}
-
+function toggleLang(){lang=lang==="pl"?"en":"pl";applyLang();}
 applyLang();
 
-/* ================= HELPERS ================= */
-
-function show(type, msg){
-  statusBox.className = "status " + type;
-  statusBox.textContent = msg;
+function show(type,msg){
+  statusBox.className="status "+type;
+  statusBox.textContent=msg;
 }
 
 function sanitizeSupplier(v){
-  return v
-    .toUpperCase()
-    .replace(/\s+/g, "_")
-    .replace(/[^A-Z0-9_]/g, "")
-    .slice(0, 40);
+  return v.toUpperCase().replace(/\s+/g,"_").replace(/[^A-Z0-9_]/g,"").slice(0,40);
 }
-
 function sanitizeInfo(v){
-  return v
-    .toUpperCase()
-    .replace(/\s+/g, "_")
-    .replace(/[^A-Z0-9_\/-]/g, "")
-    .slice(0, 80);
+  return v.toUpperCase().replace(/\s+/g,"_").replace(/[^A-Z0-9_\/-]/g,"").slice(0,80);
 }
 
-/* ================= BASE64 ENCODER ================= */
-/*
-Format:
-[1] supplier_len
-[N] supplier
-[4] date_days
-[1] slot
-[2] pallets
-[1] info_len
-[M] info
-*/
-
-function encodeDeliveryBase64(supplier, dateISO, hour, pallets, info){
-  const supBytes = new TextEncoder().encode(sanitizeSupplier(supplier));
-  const infBytes = new TextEncoder().encode(sanitizeInfo(info));
-
-  const buf = new ArrayBuffer(
-    1 + supBytes.length + 4 + 1 + 2 + 1 + infBytes.length
-  );
-
-  const view = new DataView(buf);
-  let o = 0;
-
-  view.setUint8(o++, supBytes.length);
-  new Uint8Array(buf, o, supBytes.length).set(supBytes);
-  o += supBytes.length;
-
-  const epoch = new Date("1970-01-01");
-  const days = Math.floor(
-    (new Date(dateISO) - epoch) / 86400000
-  );
-  view.setUint32(o, days);
-  o += 4;
-
-  const [h, m] = hour.split(":").map(Number);
-  const slot = ((h * 60 + m) - 480) / 15;
-  view.setUint8(o++, slot);
-
-  view.setUint16(o, pallets === "-" ? 0 : Number(pallets));
-  o += 2;
-
-  view.setUint8(o++, infBytes.length);
-  new Uint8Array(buf, o, infBytes.length).set(infBytes);
-
-  return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+function encodeDeliveryBase64(supplier,dateISO,hour,pallets,info){
+  const supBytes=new TextEncoder().encode(sanitizeSupplier(supplier));
+  const infBytes=new TextEncoder().encode(sanitizeInfo(info));
+  const buf=new ArrayBuffer(1+supBytes.length+4+1+2+1+infBytes.length);
+  const view=new DataView(buf); let o=0;
+  view.setUint8(o++,supBytes.length);
+  new Uint8Array(buf,o,supBytes.length).set(supBytes); o+=supBytes.length;
+  const days=Math.floor((new Date(dateISO)-new Date("1970-01-01"))/86400000);
+  view.setUint32(o,days); o+=4;
+  const [h,m]=hour.split(":").map(Number);
+  view.setUint8(o++,((h*60+m)-480)/15);
+  view.setUint16(o,pallets==="-"?0:Number(pallets)); o+=2;
+  view.setUint8(o++,infBytes.length);
+  new Uint8Array(buf,o,infBytes.length).set(infBytes);
+  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
-
-/* ================= GENERATE ================= */
 
 function generate(){
-  if(!supplier.value.trim())
-    return show("err", I18N[lang].err_supplier);
+  if(!supplier.value.trim()) return show("err",I18N[lang].err_supplier);
+  if(!date.value) return show("err",I18N[lang].err_date);
+  if(!hour.value) return show("err",I18N[lang].err_hour);
+  const p=pallets.value.trim();
+  if(p!=="-"&&!/^[1-9][0-9]*$/.test(p)) return show("err",I18N[lang].err_pallets);
 
-  if(!date.value)
-    return show("err", I18N[lang].err_date);
+  const payload=encodeDeliveryBase64(supplier.value,date.value,hour.value,p,info.value);
 
-  if(!hour.value)
-    return show("err", I18N[lang].err_hour);
+  const qr=document.getElementById("qr");
+  qr.innerHTML="";
+  new QRCode(qr,{text:payload,width:200,height:200});
 
-  const p = pallets.value.trim();
-  if(p !== "-" && !/^[1-9][0-9]*$/.test(p))
-    return show("err", I18N[lang].err_pallets);
-
-  const payload = encodeDeliveryBase64(
-    supplier.value,
-    date.value,
-    hour.value,
-    p,
-    info.value
-  );
-
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF();
   pdf.setFontSize(16);
-  pdf.text(
-    "AWIZACJA DOSTAWY / DELIVERY NOTIFICATION",
-    20,
-    20
-  );
-
+  pdf.text("AWIZACJA DOSTAWY / DELIVERY NOTIFICATION",20,20);
   pdf.setFontSize(12);
-  pdf.text(
-    "Dostawca / Supplier: " + sanitizeSupplier(supplier.value),
-    20,
-    35
-  );
-  pdf.text(
-    "Data / Date: " + date.value,
-    20,
-    45
-  );
-  pdf.text(
-    "Godzina / Time: " + hour.value,
-    20,
-    55
-  );
-  pdf.text(
-    "Palety / Pallets: " + p,
-    20,
-    65
-  );
-  pdf.text(
-    "Informacja / Information: " + sanitizeInfo(info.value),
-    20,
-    75
-  );
-
-  pdf.text("DPH Code:", 20, 90);
-  pdf.setFont("courier", "normal");
-  pdf.text(payload, 20, 100, { maxWidth: 170 });
-
+  pdf.text("Dostawca / Supplier: "+sanitizeSupplier(supplier.value),20,35);
+  pdf.text("Data / Date: "+date.value,20,45);
+  pdf.text("Godzina / Time: "+hour.value,20,55);
+  pdf.text("Palety / Pallets: "+p,20,65);
+  pdf.text("Informacja / Information: "+sanitizeInfo(info.value),20,75);
+  pdf.text("DPH Code:",20,90);
+  pdf.setFont("courier","normal");
+  pdf.text(payload,20,100,{maxWidth:170});
   pdf.save("awizacja_dostawy_delivery_notification.pdf");
 
-  show("ok", I18N[lang].ok);
+  show("ok",I18N[lang].ok);
 }
 </script>
 
