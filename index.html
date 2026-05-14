@@ -347,17 +347,17 @@ async function generate(){
   }
 
   /* ---------- FALLBACK ---------- */
-  pdf.save("awizacja_dostawy.pdf");
-
+  const safeSupplier = sanitizeSupplier(supplier.value);
+  pdf.save(`awizacja_delpharm_${safeSupplier}.pdf`);
+  
   const mailto =
     "mailto:" + encodeURIComponent(EMAIL_TO) +
     "?subject=" + encodeURIComponent(EMAIL_SUBJECT) +
     "&body=" + encodeURIComponent(EMAIL_BODY);
-
+  
   window.location.href = mailto;
-
-  show("ok","✓ Pobierz PDF i wyślij e‑mail ręcznie");
-}
+  
+  show("ok","✓ PDF pobrany i otwarto e‑mail");
 </script>
 
 </body>
