@@ -19,7 +19,7 @@
   --accent:#4f7cff;
   --ok:#2ecc71;
   --err:#ff5c5c;
-  --shadow:0 10px 28px rgba(0,0,0,.45);
+  --shadow:0 10px 30px rgba(0,0,0,.45);
 }
 
 *{box-sizing:border-box}
@@ -31,47 +31,42 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:32px;
+  padding:40px;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   color:var(--text);
 }
 
-/* ===== MAIN LAYOUT ===== */
+/* LAYOUT */
 
 .wrapper{
   width:100%;
-  max-width:1400px;
+  max-width:1600px;
   display:grid;
-  grid-template-columns: 1.2fr 1.8fr; /* ~40 / 60 */
-  gap:28px;
-}
-
-.wrapper.swap{
-  grid-template-columns: 1.8fr 1.2fr; /* swapped on toggle */
+  grid-template-columns: 1.3fr 1.9fr; /* ~40 / 60 */
+  gap:32px;
 }
 
 @media (max-width: 900px){
-  .wrapper,
-  .wrapper.swap{
+  .wrapper{
     grid-template-columns:1fr;
   }
 }
 
-/* ===== CARDS ===== */
+/* CARDS */
 
 .card{
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:16px;
-  padding:32px;
+  border-radius:18px;
+  padding:36px;
   box-shadow:var(--shadow);
 }
 
-/* ===== LEFT INFO ===== */
+/* LEFT INFO */
 
 .info-title{
-  font-size:1.2rem;
-  margin-bottom:16px;
+  font-size:1.3rem;
+  margin-bottom:18px;
 }
 
 .info-list{
@@ -79,79 +74,79 @@ body{
 }
 
 .info-list li{
-  margin-bottom:16px;
-  line-height:1.5;
+  margin-bottom:18px;
+  line-height:1.55;
 }
 
 .info-muted{
   color:var(--muted);
-  font-size:.9rem;
+  font-size:.95rem;
 }
 
 .info-img{
-  margin-top:22px;
+  margin-top:26px;
   display:flex;
   justify-content:center;
 }
 
 .info-img img{
   width:96%;
-  border-radius:16px;
+  border-radius:18px;
   border:1px solid var(--border);
   box-shadow:var(--shadow);
   background:#fff;
-  padding:12px;
+  padding:14px;
 }
 
-/* ===== FORM ===== */
+/* FORM */
 
-.field{margin-bottom:20px}
+.field{margin-bottom:22px}
 
 label{
   display:block;
-  font-size:.9rem;
+  font-size:1rem;
   color:var(--muted);
-  margin-bottom:6px;
+  margin-bottom:8px;
 }
 
 input,select{
   width:100%;
   background:var(--bg-soft);
   border:1px solid var(--border);
-  border-radius:12px;
-  padding:16px 18px;
+  border-radius:14px;
+  padding:18px 20px;
   color:var(--text);
-  font-size:1rem;
+  font-size:1.05rem;
 }
 
 .row2{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:18px;
+  gap:20px;
 }
 
 button{
   width:100%;
-  padding:16px;
+  padding:18px;
   background:transparent;
   color:var(--text);
   border:1px solid var(--accent);
-  border-radius:14px;
+  border-radius:16px;
   cursor:pointer;
-  font-size:1rem;
+  font-size:1.05rem;
 }
 
 .lang-btn{
   width:auto;
-  padding:6px 12px;
-  font-size:.85rem;
-  margin-bottom:12px;
+  padding:8px 14px;
+  font-size:.9rem;
+  margin-bottom:14px;
 }
 
 .status{
-  margin-top:22px;
-  padding:16px;
-  border-radius:12px;
+  margin-top:24px;
+  padding:18px;
+  border-radius:14px;
   display:none;
 }
 
@@ -162,26 +157,13 @@ button{
 
 <body>
 
-<div class="wrapper" id="layout">
+<div class="wrapper">
 
   <!-- LEFT INFORMATION -->
   <div class="card">
-    <div class="info-title">Informacje / Information</div>
+    <div class="info-title" id="infoTitle"></div>
 
-    <ul class="info-list">
-      <li>
-        <b>Finalna data i godzina rozładunku</b> zostaną podane przez <b>DELPHARM</b><br>
-        <span class="info-muted">
-          Final unloading date and time will be provided by <b>DELPHARM</b>
-        </span>
-      </li>
-      <li>
-        <b>Przyjmujemy tylko europalety</b><br>
-        <span class="info-muted">
-          We accept <b>EUR / EPAL pallets only</b>
-        </span>
-      </li>
-    </ul>
+    <ul class="info-list" id="infoList"></ul>
 
     <div class="info-img">
       <img src="epal.png" alt="EPAL pallet">
@@ -198,7 +180,7 @@ button{
     <h1 data-i18n="title"></h1>
     <p data-i18n="subtitle" style="color:var(--muted)"></p>
 
-    <hr style="margin:26px 0;border:0;border-top:1px solid var(--border)">
+    <hr style="margin:28px 0;border:0;border-top:1px solid var(--border)">
 
     <div class="field">
       <label data-i18n="supplier"></label>
@@ -247,7 +229,6 @@ button{
 
 <script>
 let lang="pl";
-const layout=document.getElementById("layout");
 const statusBox=document.getElementById("status");
 
 const I18N={
@@ -264,7 +245,12 @@ const I18N={
     err_supplier:"Podaj dostawcę",
     err_date:"Wybierz datę",
     err_hour:"Wybierz godzinę",
-    err_pallets:"Palety: wpisz „-” lub liczbę ≥ 1"
+    err_pallets:"Palety: wpisz „-” lub liczbę ≥ 1",
+    infoTitle:"Informacje",
+    infoItems:[
+      "<b>Finalna data i godzina rozładunku</b> zostaną podane przez <b>DELPHARM</b>",
+      "<b>Przyjmujemy tylko europalety</b>"
+    ]
   },
   en:{
     title:"DPH Notifications",
@@ -279,7 +265,12 @@ const I18N={
     err_supplier:"Enter supplier",
     err_date:"Select delivery date",
     err_hour:"Select time slot",
-    err_pallets:"Pallets: type “-” or number ≥ 1"
+    err_pallets:"Pallets: type “-” or number ≥ 1",
+    infoTitle:"Information",
+    infoItems:[
+      "<b>Final unloading date and time</b> will be provided by <b>DELPHARM</b>",
+      "<b>We accept EUR / EPAL pallets only</b>"
+    ]
   }
 };
 
@@ -287,8 +278,17 @@ function applyLang(){
   document.querySelectorAll("[data-i18n]").forEach(el=>{
     el.textContent=I18N[lang][el.dataset.i18n];
   });
+
   document.getElementById("langToggle").textContent=lang==="pl"?"EN":"PL";
-  layout.classList.toggle("swap", lang==="en");
+
+  document.getElementById("infoTitle").textContent=I18N[lang].infoTitle;
+  const list=document.getElementById("infoList");
+  list.innerHTML="";
+  I18N[lang].infoItems.forEach(t=>{
+    const li=document.createElement("li");
+    li.innerHTML=t;
+    list.appendChild(li);
+  });
 }
 
 function toggleLang(){
