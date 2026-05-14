@@ -240,9 +240,11 @@ function show(type,msg){
 function sanitizeSupplier(v){
   return v.toUpperCase().replace(/\s+/g,"_").replace(/[^A-Z0-9_]/g,"").slice(0,40);
 }
+
 function sanitizeInfo(v){
-  return v.toUpperCase().replace(/\s+/g,"_").replace(/[^A-Z0-9_\/-]/g,"").slice(0,80);
+  return v.toUpperCase().replace(/[^A-Z0-9 \/.-]/g, "").slice(0, 80);
 }
+
 
 function encodeDeliveryBase64(supplier,dateISO,hour,pallets,info){
   const supBytes=new TextEncoder().encode(sanitizeSupplier(supplier));
