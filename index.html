@@ -5,51 +5,81 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Awizacje DPH</title>
 
+<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- QRCode -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
 :root{
-  --bg:#0b0e14; --bg2:#11151f; --card:#151a26;
+  --bg:#0b0e14;
+  --bg-soft:#11151f;
+  --card:#151a26;
   --border:rgba(255,255,255,.08);
-  --text:#fff; --muted:#a0a6b8;
-  --ok:#2ecc71; --err:#ff5c5c;
+  --text:#ffffff;
+  --muted:#a0a6b8;
   --accent:#4f7cff;
+  --ok:#2ecc71;
+  --err:#ff5c5c;
+  --radius:12px;
 }
 *{box-sizing:border-box}
 body{
-  margin:0; min-height:100vh; display:flex;
-  align-items:center; justify-content:center;
-  background:var(--bg); color:var(--text);
-  font-family:system-ui,Segoe UI,Roboto,sans-serif;
+  margin:0;
+  min-height:100vh;
+  background:var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  color:var(--text);
 }
 .card{
-  width:100%; max-width:720px;
+  width:100%;
+  max-width:720px;
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:12px;
+  border-radius:var(--radius);
   padding:36px;
 }
 .field{margin-bottom:18px}
-label{display:block;color:var(--muted);margin-bottom:6px;font-size:.85rem}
+label{
+  display:block;
+  font-size:.85rem;
+  color:var(--muted);
+  margin-bottom:6px
+}
 input,select{
-  width:100%; padding:14px 16px;
-  background:var(--bg2); color:var(--text);
+  width:100%;
+  background:var(--bg-soft);
   border:1px solid var(--border);
   border-radius:10px;
+  padding:14px 16px;
+  color:var(--text);
+  font-size:.95rem;
 }
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.row2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px
+}
 button{
-  width:100%; padding:14px;
+  width:100%;
+  cursor:pointer;
+  border-radius:12px;
+  padding:14px;
+  font-size:1rem;
   background:transparent;
   color:var(--text);
   border:1px solid var(--accent);
-  border-radius:12px;
-  cursor:pointer;
 }
 .status{
-  margin-top:20px; padding:14px;
-  border-radius:10px; display:none;
+  margin-top:20px;
+  padding:14px 16px;
+  border-radius:10px;
+  display:none;
+  font-size:.9rem;
 }
 .status.ok{display:block;background:rgba(46,204,113,.15);color:var(--ok)}
 .status.err{display:block;background:rgba(255,92,92,.15);color:var(--err)}
@@ -99,7 +129,7 @@ button{
   </div>
 
   <div class="field">
-    <label>Informacja / Info (max 80 chars)</label>
+    <label>Informacja / Info (max 80 chars, A‑Z 0‑9 _ - /)</label>
     <input id="info" maxlength="80">
   </div>
 
@@ -114,36 +144,70 @@ button{
 date.valueAsDate = new Date();
 const statusBox = document.getElementById("status");
 
+/* ---------------- SANITIZE ---------------- */
+
+function sanitizeSupplier(v){
+  return v
+    .toUpperCase()
+    .replace(/\s+/g,"_")
+    .replace(/[^A-Z0-9_]/g,"")
+    .slice(0,40);
+}
+
+function sanitizeInfo(v){
+  return v
+    .toUpperCase()
+    .replace(/\s+/g,"_")
+    .replace(/[^A-Z0-9_\/-]/g,"")
+    .slice(0,80);
+}
+
+/* ---------------- BASE64 ENCODER ---------------- */
+/* FORMAT: >40s I B H B <info> */
+
+function encodeDeliveryBase64(supplier, dateISO, hour, pallets, info){
+  const sup = sanitizeSupplier(supplier);
+  const inf = sanitizeInfo(info);
+
+  const infoBytes = new TextEncoder().encode(inf);
+  const infoLen = infoBytes.length;
+
+  const buf = new ArrayBuffer(40 + 4 + 1 + 2 + 1 + infoLen);
+  const view = new DataView(buf);
+  let o = 0;
+
+  new Uint8Array(buf,o,40).set(new TextEncoder().encode(sup));
+  o += 40;
+
+  const epoch = new Date("1970-01-01");
+  const days = Math.floor((new Date(dateISO) - epoch) / 86400000);
+  view.setUint32(o, days);
+  o += 4;
+
+  const [h,m] = hour.split(":").map(Number);
+  const slot = ((h*60+m)-480)/15;
+  view.setUint8(o, slot);
+  o += 1;
+
+  view.setUint16(o, pallets===0?0:pallets);
+  o += 2;
+
+  view.setUint8(o, infoLen);
+  o += 1;
+
+  new Uint8Array(buf,o,infoLen).set(infoBytes);
+
+  return btoa(String.fromCharCode(...new Uint8Array(buf)))
+    .replace(/\+/g,"-")
+    .replace(/\//g,"_")
+    .replace(/=+$/,"");
+}
+
+/* ---------------- UI ---------------- */
+
 function show(type,msg){
   statusBox.className="status "+type;
   statusBox.textContent=msg;
-}
-
-function encodeDeliveryBase64(supplier, dateISO, hour, pallets, info){
-  const buf = new ArrayBuffer(40+4+1+2+80);
-  const view = new DataView(buf);
-  let o=0;
-
-  const sup = new TextEncoder().encode(
-    supplier.toUpperCase().replace(/\s+/g,"_")
-  ).slice(0,40);
-  new Uint8Array(buf,o,40).set(sup); o+=40;
-
-  const epoch = new Date("1970-01-01");
-  const days = Math.floor((new Date(dateISO)-epoch)/86400000);
-  view.setUint32(o,days); o+=4;
-
-  const [h,m]=hour.split(":").map(Number);
-  const slot=((h*60+m)-480)/15;
-  view.setUint8(o,slot); o+=1;
-
-  view.setUint16(o,pallets===0?0:pallets); o+=2;
-
-  const infoBytes=new TextEncoder().encode(info).slice(0,80);
-  new Uint8Array(buf,o,80).set(infoBytes);
-
-  return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
 
 function generate(){
@@ -151,37 +215,40 @@ function generate(){
   if(!date.value) return show("err","Wybierz datę");
   if(!hour.value) return show("err","Wybierz godzinę");
 
-  const palletsVal=Number(pallets.value);
-  if(palletsVal<0||palletsVal>999) return show("err","Palety 0–999");
+  const palletsVal = Number(pallets.value);
+  if(palletsVal<0 || palletsVal>999) return show("err","Palety 0–999");
 
   const payload = encodeDeliveryBase64(
     supplier.value,
     date.value,
     hour.value,
     palletsVal,
-    info.value||""
+    info.value
   );
 
   document.getElementById("qr").innerHTML="";
   new QRCode(document.getElementById("qr"),{text:payload,width:200,height:200});
 
-  const {jsPDF}=window.jspdf;
-  const pdf=new jsPDF();
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
   pdf.setFontSize(16);
   pdf.text("AWIZACJA DOSTAWY / DELIVERY NOTIFICATION",20,20);
+
   pdf.setFontSize(12);
-  pdf.text("Supplier: "+supplier.value,20,35);
+  pdf.text("Supplier: "+sanitizeSupplier(supplier.value),20,35);
   pdf.text("Date: "+date.value,20,45);
   pdf.text("Time: "+hour.value,20,55);
   pdf.text("Pallets: "+(palletsVal===0?"-":palletsVal),20,65);
+
   pdf.text("DPH Code:",20,80);
   pdf.setFont("courier","normal");
   pdf.text(payload,20,90,{maxWidth:170});
 
-  const canvas=document.querySelector("#qr canvas");
+  const canvas = document.querySelector("#qr canvas");
   pdf.addImage(canvas.toDataURL("image/png"),"PNG",60,130,90,90);
-  pdf.save("awizacja_dostawy_delivery_notification.pdf");
 
+  pdf.save("awizacja_dostawy_delivery_notification.pdf");
   show("ok","✓ Awizacja wygenerowana / PDF downloaded");
 }
 </script>
