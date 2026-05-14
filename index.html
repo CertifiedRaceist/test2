@@ -289,8 +289,16 @@ async function generate(){
   /* ---------- QR ---------- */
   const qr = document.getElementById("qr");
   qr.innerHTML = "";
-  new QRCode(qr,{ text: payload, width:200, height:200 });
+  new QRCode(qr, { text: payload, width: 200, height: 200 });
+
+  /* ✅ wait for QR canvas to render */
+  await new Promise(requestAnimationFrame);
+
   const canvas = qr.querySelector("canvas");
+  if (!canvas) {
+    return show("err", "QR generation failed");
+  }
+
   const qrImg = canvas.toDataURL("image/png");
 
   /* ---------- PDF ---------- */
@@ -298,43 +306,62 @@ async function generate(){
   const pdf = new jsPDF();
 
   pdf.setFontSize(16);
-  pdf.text("AWIZACJA DOSTAWY / DELIVERY NOTIFICATION",20,20);
+  pdf.text("AWIZACJA DOSTAWY / DELIVERY NOTIFICATION", 20, 20);
 
   pdf.setFontSize(12);
-  pdf.text("Dostawca / Supplier: " + sanitizeSupplier(supplier.value),20,35);
-  pdf.text("Data / Date: " + date.value,20,45);
-  pdf.text("Godzina / Time: " + hour.value,20,55);
-  pdf.text("Palety / Pallets: " + p,20,65);
-  pdf.text("Informacja / Information: " + sanitizeInfo(info.value),20,75);
+  pdf.text("Dostawca / Supplier: " + sanitizeSupplier(supplier.value), 20, 35);
+  pdf.text("Data / Date: " + date.value, 20, 45);
+  pdf.text("Godzina / Time: " + hour.value, 20, 55);
+  pdf.text("Palety / Pallets: " + p, 20, 65);
+  pdf.text("Informacja / Information: " + sanitizeInfo(info.value), 20, 75);
 
-  pdf.text("DPH Code:",20,95);
-  pdf.setFont("courier","normal");
-  pdf.text(payload,20,105,{ maxWidth:170 });
+  /* DPH CODE ABOVE QR */
+  pdf.text("DPH Code:", 20, 95);
+  pdf.setFont("courier", "normal");
+  pdf.text(payload, 20, 105, { maxWidth: 170 });
 
-  pdf.addImage(qrImg,"PNG",60,150,90,90);
+  /* QR BELOW */
+  pdf.addImage(qrImg, "PNG", 60, 150, 90, 90);
 
-  /* ---------- CREATE FILE ---------- */
+  /* ---------- FILE ---------- */
   const pdfBlob = pdf.output("blob");
   const pdfFile = new File(
     [pdfBlob],
     "awizacja_dostawy.pdf",
-    { type:"application/pdf" }
+    { type: "application/pdf" }
   );
 
   /* ---------- TRY EMAIL WITH ATTACHMENT ---------- */
-  if (navigator.canShare && navigator.canShare({ files:[pdfFile] })) {
+  if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
     try {
       await navigator.share({
         files: [pdfFile],
         title: "Awizacja dostawy",
-        text: EMAIL_BODY
+        text: "W załączniku przesyłam awizację dostawy."
       });
-      show("ok","✓ Otwarto klienta e‑mail z załącznikiem");
+      show("ok", "✓ Otwarto klienta e‑mail z załącznikiem");
       return;
     } catch (e) {
-      /* fall through to fallback */
+      /* fall back */
     }
   }
+
+  /* ---------- FALLBACK ---------- */
+  pdf.save("awizacja_dostawy.pdf");
+
+  const mailto =
+    "mailto:cyprian.m.latka@delpharm.com" +
+    "?subject=" + encodeURIComponent(
+      "Witam uprzejmie, Panie Piotrze. Proszę o zatwierdzenie awizacji."
+    ) +
+    "&body=" + encodeURIComponent(
+      "W załączniku przesyłam awizację dostawy.\n\nPozdrawiam"
+    );
+
+  window.location.href = mailto;
+
+  show("ok", "✓ Pobierz PDF i wyślij e‑mail ręcznie");
+}
 
   /* ---------- FALLBACK ---------- */
   pdf.save("awizacja_dostawy.pdf");
