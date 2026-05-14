@@ -74,6 +74,12 @@ button{
   color:var(--text);
   border:1px solid var(--accent);
 }
+.lang-btn{
+  width:auto;
+  padding:6px 10px;
+  font-size:.8rem;
+  margin-bottom:10px;
+}
 .status{
   margin-top:20px;
   padding:14px 16px;
@@ -89,25 +95,30 @@ button{
 <body>
 
 <div class="card">
-  <h1>Awizacje DPH</h1>
-  <p style="color:var(--muted)">Stwórz awizację / Create delivery notification</p>
+
+  <div style="text-align:right">
+    <button class="lang-btn" id="langToggle" onclick="toggleLang()">EN</button>
+  </div>
+
+  <h1 data-i18n="title"></h1>
+  <p data-i18n="subtitle" style="color:var(--muted)"></p>
 
   <hr style="margin:24px 0;border:0;border-top:1px solid var(--border)">
 
   <div class="field">
-    <label>Dostawca / Supplier</label>
+    <label data-i18n="supplier"></label>
     <input id="supplier">
   </div>
 
   <div class="row2">
     <div class="field">
-      <label>Data dostawy / Delivery date</label>
+      <label data-i18n="date"></label>
       <input type="date" id="date">
     </div>
     <div class="field">
-      <label>Godzina / Time slot</label>
+      <label data-i18n="hour"></label>
       <select id="hour">
-        <option value="">— wybierz / select —</option>
+        <option value="">—</option>
         <option>08:00</option><option>08:15</option><option>08:30</option><option>08:45</option>
         <option>09:00</option><option>09:15</option><option>09:30</option><option>09:45</option>
         <option>10:00</option><option>10:15</option><option>10:30</option><option>10:45</option>
@@ -124,19 +135,16 @@ button{
   </div>
 
   <div class="field">
-    <label>
-      Liczba palet (wpisz „-” jeśli nie dotyczy) <br>
-      Number of pallets (type “-” if not applicable)
-    </label>
-    <input id="pallets" placeholder="-" value="-">
+    <label data-i18n="pallets"></label>
+    <input id="pallets" value="-" placeholder="-">
   </div>
 
   <div class="field">
-    <label>Informacja / Information</label>
+    <label data-i18n="info"></label>
     <input id="info" maxlength="80">
   </div>
 
-  <button onclick="generate()">Potwierdź / Generate</button>
+  <button onclick="generate()" data-i18n="generate"></button>
   <div class="status" id="status"></div>
 </div>
 
@@ -144,7 +152,55 @@ button{
 
 <script>
 date.valueAsDate = new Date();
+let lang = "pl";
 const statusBox = document.getElementById("status");
+
+const I18N = {
+  pl: {
+    title: "Awizacje DPH",
+    subtitle: "Stwórz awizację",
+    supplier: "Dostawca",
+    date: "Data dostawy",
+    hour: "Godzina",
+    pallets: "Liczba palet (wpisz „-” jeśli nie dotyczy)",
+    info: "Informacja",
+    generate: "Potwierdź",
+    err_supplier: "Podaj dostawcę",
+    err_date: "Wybierz datę",
+    err_hour: "Wybierz godzinę",
+    err_pallets: "Palety: wpisz „-” lub liczbę ≥ 1",
+    ok: "✓ Awizacja wygenerowana"
+  },
+  en: {
+    title: "DPH Notifications",
+    subtitle: "Create delivery notification",
+    supplier: "Supplier",
+    date: "Delivery date",
+    hour: "Time slot",
+    pallets: "Number of pallets (type “-” if not applicable)",
+    info: "Information",
+    generate: "Generate",
+    err_supplier: "Enter supplier",
+    err_date: "Select delivery date",
+    err_hour: "Select time slot",
+    err_pallets: "Pallets: type “-” or number ≥ 1",
+    ok: "✓ Notification generated"
+  }
+};
+
+function applyLang(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    el.textContent = I18N[lang][el.dataset.i18n];
+  });
+  document.getElementById("langToggle").textContent = lang === "pl" ? "EN" : "PL";
+}
+
+function toggleLang(){
+  lang = lang === "pl" ? "en" : "pl";
+  applyLang();
+}
+
+applyLang();
 
 /* ---------- SANITIZE ---------- */
 function sanitizeSupplier(v){
@@ -180,28 +236,20 @@ function encodeDeliveryBase64(supplier, dateISO, hour, pallets, info){
     .replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 }
 
-/* ---------- UI ---------- */
+/* ---------- GENERATE ---------- */
 function show(type,msg){
   statusBox.className="status "+type;
   statusBox.textContent=msg;
 }
 
 function generate(){
-  if(!supplier.value.trim())
-    return show("err","Podaj dostawcę / Enter supplier");
-
-  if(!date.value)
-    return show("err","Wybierz datę / Select delivery date");
-
-  if(!hour.value)
-    return show("err","Wybierz godzinę / Select time slot");
+  if(!supplier.value.trim()) return show("err", I18N[lang].err_supplier);
+  if(!date.value) return show("err", I18N[lang].err_date);
+  if(!hour.value) return show("err", I18N[lang].err_hour);
 
   const palletsVal = pallets.value.trim();
   if(palletsVal !== "-" && !/^[1-9][0-9]*$/.test(palletsVal))
-    return show(
-      "err",
-      "Palety: wpisz „-” lub liczbę ≥ 1 / Pallets: type “-” or number ≥ 1"
-    );
+    return show("err", I18N[lang].err_pallets);
 
   const payload = encodeDeliveryBase64(
     supplier.value, date.value, hour.value, palletsVal, info.value
@@ -215,11 +263,11 @@ function generate(){
   pdf.setFontSize(16);
   pdf.text("AWIZACJA DOSTAWY / DELIVERY NOTIFICATION",20,20);
   pdf.setFontSize(12);
-  pdf.text("Supplier: "+sanitizeSupplier(supplier.value),20,35);
-  pdf.text("Date: "+date.value,20,45);
-  pdf.text("Time: "+hour.value,20,55);
-  pdf.text("Pallets: "+palletsVal,20,65);
-  pdf.text("Info: "+sanitizeInfo(info.value),20,75);
+  pdf.text("Dostawca / Supplier: " + sanitizeSupplier(supplier.value),20,35);
+  pdf.text("Data / Date: " + date.value,20,45);
+  pdf.text("Godzina / Time: " + hour.value,20,55);
+  pdf.text("Palety / Pallets: " + palletsVal,20,65);
+  pdf.text("Informacja / Information: " + sanitizeInfo(info.value),20,75);
 
   pdf.text("DPH Code:",20,90);
   pdf.setFont("courier","normal");
@@ -229,7 +277,7 @@ function generate(){
   pdf.addImage(canvas.toDataURL("image/png"),"PNG",60,135,90,90);
 
   pdf.save("awizacja_dostawy_delivery_notification.pdf");
-  show("ok","✓ Awizacja wygenerowana / ✓ Notification generated");
+  show("ok", I18N[lang].ok);
 }
 </script>
 
