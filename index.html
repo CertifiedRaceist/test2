@@ -150,6 +150,18 @@ button{
   display:none;
 }
 
+  
+input[type="date"]::-webkit-calendar-picker-indicator{
+  filter:
+    invert(48%)
+    sepia(90%)
+    saturate(500%)
+    hue-rotate(185deg)
+    brightness(100%);
+  cursor: pointer;
+}
+
+
 .status.ok{display:block;background:rgba(46,204,113,.15);color:var(--ok)}
 .status.err{display:block;background:rgba(255,92,92,.15);color:var(--err)}
 </style>
