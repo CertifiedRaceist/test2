@@ -1,78 +1,55 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Awizacje DPH</title>
 
-<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<!-- QRCode -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
 :root{
-  --bg:#0b0e14;
-  --bg-soft:#11151f;
-  --card:#151a26;
+  --bg:#0b0e14; --bg2:#11151f; --card:#151a26;
   --border:rgba(255,255,255,.08);
-  --text:#ffffff;
-  --muted:#a0a6b8;
+  --text:#fff; --muted:#a0a6b8;
+  --ok:#2ecc71; --err:#ff5c5c;
   --accent:#4f7cff;
-  --ok:#2ecc71;
-  --err:#ff5c5c;
-  --radius:12px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box}
 body{
-  min-height:100vh;
-  background:var(--bg);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:32px;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  color:var(--text);
+  margin:0; min-height:100vh; display:flex;
+  align-items:center; justify-content:center;
+  background:var(--bg); color:var(--text);
+  font-family:system-ui,Segoe UI,Roboto,sans-serif;
 }
 .card{
-  width:100%;
-  max-width:720px;
+  width:100%; max-width:720px;
   background:var(--card);
   border:1px solid var(--border);
-  border-radius:var(--radius);
+  border-radius:12px;
   padding:36px;
 }
 .field{margin-bottom:18px}
-label{display:block;font-size:.85rem;color:var(--muted);margin-bottom:6px}
+label{display:block;color:var(--muted);margin-bottom:6px;font-size:.85rem}
 input,select{
-  width:100%;
-  background:var(--bg-soft);
+  width:100%; padding:14px 16px;
+  background:var(--bg2); color:var(--text);
   border:1px solid var(--border);
   border-radius:10px;
-  padding:14px 16px;
-  color:var(--text);
-  font-size:.95rem;
 }
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.actions{margin-top:26px;display:flex;gap:14px}
 button{
-  cursor:pointer;
-  border-radius:12px;
-  padding:14px 22px;
-  font-size:1rem;
-}
-.primary{
-  flex:1;
+  width:100%; padding:14px;
   background:transparent;
   color:var(--text);
   border:1px solid var(--accent);
+  border-radius:12px;
+  cursor:pointer;
 }
 .status{
-  margin-top:20px;
-  padding:14px 16px;
-  border-radius:10px;
-  display:none;
-  font-size:.9rem;
+  margin-top:20px; padding:14px;
+  border-radius:10px; display:none;
 }
 .status.ok{display:block;background:rgba(46,204,113,.15);color:var(--ok)}
 .status.err{display:block;background:rgba(255,92,92,.15);color:var(--err)}
@@ -85,7 +62,7 @@ button{
   <h1>Awizacje DPH</h1>
   <p style="color:var(--muted)">Stwórz awizację / Create delivery notification</p>
 
-  <hr style="margin:24px 0;border:0;border-top:1px solid var(--border)"/>
+  <hr style="margin:24px 0;border:0;border-top:1px solid var(--border)">
 
   <div class="field">
     <label>Dostawca / Supplier</label>
@@ -122,13 +99,11 @@ button{
   </div>
 
   <div class="field">
-    <label>Informacja / Info (max 160 chars)</label>
-    <input id="info" maxlength="160">
+    <label>Informacja / Info (max 80 chars)</label>
+    <input id="info" maxlength="80">
   </div>
 
-  <div class="actions">
-    <button class="primary" onclick="generate()">Potwierdź / Generate</button>
-  </div>
+  <button onclick="generate()">Potwierdź / Generate</button>
 
   <div class="status" id="status"></div>
 </div>
@@ -137,7 +112,6 @@ button{
 
 <script>
 date.valueAsDate = new Date();
-
 const statusBox = document.getElementById("status");
 
 function show(type,msg){
@@ -146,7 +120,7 @@ function show(type,msg){
 }
 
 function encodeDeliveryBase64(supplier, dateISO, hour, pallets, info){
-  const buf = new ArrayBuffer(40+4+1+2+160);
+  const buf = new ArrayBuffer(40+4+1+2+80);
   const view = new DataView(buf);
   let o=0;
 
@@ -165,8 +139,8 @@ function encodeDeliveryBase64(supplier, dateISO, hour, pallets, info){
 
   view.setUint16(o,pallets===0?0:pallets); o+=2;
 
-  const infoBytes=new TextEncoder().encode(info).slice(0,160);
-  new Uint8Array(buf,o,160).set(infoBytes);
+  const infoBytes=new TextEncoder().encode(info).slice(0,80);
+  new Uint8Array(buf,o,80).set(infoBytes);
 
   return btoa(String.fromCharCode(...new Uint8Array(buf)))
     .replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
