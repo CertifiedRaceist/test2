@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Awizacje DPH</title>
 
+<!-- jsPDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- QRCode -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
@@ -21,9 +24,7 @@
   --err:#ff5c5c;
   --shadow:0 10px 30px rgba(0,0,0,.45);
 }
-
 *{box-sizing:border-box}
-
 body{
   margin:0;
   min-height:100vh;
@@ -35,8 +36,6 @@ body{
   font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   color:var(--text);
 }
-
-/* LAYOUT */
 .wrapper{
   width:100%;
   max-width:1600px;
@@ -44,11 +43,9 @@ body{
   grid-template-columns: 0.9fr 2.0fr;
   gap:32px;
 }
-@media (max-width: 900px){
+@media (max-width:900px){
   .wrapper{grid-template-columns:1fr}
 }
-
-/* CARDS */
 .card{
   background:var(--card);
   border:1px solid var(--border);
@@ -56,8 +53,6 @@ body{
   padding:36px;
   box-shadow:var(--shadow);
 }
-
-/* LEFT INFO */
 .info-title{font-size:1.3rem;margin-bottom:18px}
 .info-list{padding-left:18px}
 .info-list li{margin-bottom:18px;line-height:1.55}
@@ -71,8 +66,6 @@ body{
   background:#fff;
   padding:14px;
 }
-
-/* FORM */
 .field{margin-bottom:22px}
 label{display:block;font-size:1rem;color:var(--muted);margin-bottom:8px}
 input,select{
@@ -99,7 +92,6 @@ button{
 .status{margin-top:24px;padding:18px;border-radius:14px;display:none}
 .status.ok{display:block;background:rgba(46,204,113,.15);color:var(--ok)}
 .status.err{display:block;background:rgba(255,92,92,.15);color:var(--err)}
-
 input[type="date"]::-webkit-calendar-picker-indicator{
   filter: invert(48%) sepia(90%) saturate(500%) hue-rotate(185deg) brightness(100%);
   cursor:pointer;
@@ -283,6 +275,9 @@ function generate(){
   qr.innerHTML="";
   new QRCode(qr,{text:payload,width:200,height:200});
 
+  const canvas=qr.querySelector("canvas");
+  const qrImg=canvas.toDataURL("image/png");
+
   const {jsPDF}=window.jspdf;
   const pdf=new jsPDF();
   pdf.setFontSize(16);
@@ -293,9 +288,10 @@ function generate(){
   pdf.text("Godzina / Time: "+hour.value,20,55);
   pdf.text("Palety / Pallets: "+p,20,65);
   pdf.text("Informacja / Information: "+sanitizeInfo(info.value),20,75);
-  pdf.text("DPH Code:",20,90);
+  pdf.addImage(qrImg,"PNG",60,95,90,90);
+  pdf.text("DPH Code:",20,195);
   pdf.setFont("courier","normal");
-  pdf.text(payload,20,100,{maxWidth:170});
+  pdf.text(payload,20,205,{maxWidth:170});
   pdf.save("awizacja_dostawy_delivery_notification.pdf");
 
   show("ok",I18N[lang].ok);
