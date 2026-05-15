@@ -172,11 +172,9 @@ input[type="date"]::-webkit-calendar-picker-indicator{
 let lang="pl";
 const statusBox=document.getElementById("status");
 
-
 const EMAIL_TO = "cyprian.m.latka@delpharm.com";
 const EMAIL_SUBJECT = "Witam uprzejmie, Panie Piotrze. Proszę o zatwierdzenie awizacji.";
 const EMAIL_BODY = "W załączniku przesyłam awizację dostawy.\n\nPozdrawiam";
-
 
 const I18N={
   pl:{
@@ -188,7 +186,6 @@ const I18N={
     pallets:"Liczba palet (wpisz „-” jeśli nie dotyczy)",
     info:"Informacja",
     generate:"Potwierdź",
-    ok:"✓ Awizacja wygenerowana",
     err_supplier:"Podaj dostawcę",
     err_date:"Wybierz datę",
     err_hour:"Wybierz godzinę",
@@ -205,14 +202,13 @@ const I18N={
     supplier:"Supplier",
     date:"Delivery date",
     hour:"Time slot",
-    pallets:"Number of pallets (type “-” if not applicable)",
+    pallets:"Number of pallets",
     info:"Information",
     generate:"Generate",
-    ok:"✓ Notification generated",
     err_supplier:"Enter supplier",
-    err_date:"Select delivery date",
+    err_date:"Select date",
     err_hour:"Select time slot",
-    err_pallets:"Pallets: type “-” or number ≥ 1",
+    err_pallets:"Pallets: '-' or number ≥ 1",
     infoTitle:"Information",
     infoItems:[
       "<b>Final unloading date and time</b> will be provided by <b>DELPHARM</b>",
@@ -225,14 +221,13 @@ function applyLang(){
   document.querySelectorAll("[data-i18n]").forEach(el=>{
     el.textContent=I18N[lang][el.dataset.i18n];
   });
-  document.getElementById("langToggle").textContent=lang==="pl"?"EN":"PL";
-  document.getElementById("infoTitle").textContent=I18N[lang].infoTitle;
-  const list=document.getElementById("infoList");
-  list.innerHTML="";
+  langToggle.textContent=lang==="pl"?"EN":"PL";
+  infoTitle.textContent=I18N[lang].infoTitle;
+  infoList.innerHTML="";
   I18N[lang].infoItems.forEach(t=>{
     const li=document.createElement("li");
     li.innerHTML=t;
-    list.appendChild(li);
+    infoList.appendChild(li);
   });
 }
 function toggleLang(){lang=lang==="pl"?"en":"pl";applyLang();}
@@ -246,11 +241,9 @@ function show(type,msg){
 function sanitizeSupplier(v){
   return v.toUpperCase().replace(/\s+/g,"_").replace(/[^A-Z0-9_]/g,"").slice(0,40);
 }
-
 function sanitizeInfo(v){
-  return v.toUpperCase().replace(/[^A-Z0-9 \/.-]/g, "").slice(0, 80);
+  return v.toUpperCase().replace(/[^A-Z0-9 \/.-]/g,"").slice(0,80);
 }
-
 
 function encodeDeliveryBase64(supplier,dateISO,hour,pallets,info){
   const supBytes=new TextEncoder().encode(sanitizeSupplier(supplier));
@@ -286,7 +279,6 @@ async function generate(){
     info.value
   );
 
-  /* ---------- QR ---------- */
   const qr = document.getElementById("qr");
   qr.innerHTML = "";
   new QRCode(qr, { text: payload, width: 200, height: 200 });
@@ -298,72 +290,33 @@ async function generate(){
 
   const qrImg = canvas.toDataURL("image/png");
 
-  /* ---------- PDF ---------- */
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
 
   pdf.setFontSize(16);
   pdf.text("AWIZACJA DOSTAWY / DELIVERY NOTIFICATION", 20, 20);
-
   pdf.setFontSize(12);
   pdf.text("Dostawca / Supplier: " + sanitizeSupplier(supplier.value), 20, 35);
   pdf.text("Data / Date: " + date.value, 20, 45);
   pdf.text("Godzina / Time: " + hour.value, 20, 55);
   pdf.text("Palety / Pallets: " + p, 20, 65);
   pdf.text("Informacja / Information: " + sanitizeInfo(info.value), 20, 75);
-
   pdf.text("DPH Code:", 20, 95);
   pdf.setFont("courier", "normal");
   pdf.text(payload, 20, 105, { maxWidth: 170 });
-
   pdf.addImage(qrImg, "PNG", 60, 150, 90, 90);
-
-  /* ---------- CREATE FILE (SAFE WAY) ---------- */
-  const pdfArrayBuffer = pdf.output("arraybuffer");
-  const pdfBlob = new Blob(
-    [pdfArrayBuffer],
-    { type: "application/pdf" }
-  );
-
-  const pdfFile = new File(
-    [pdfBlob],
-    "awizacja_dostawy.pdf",
-    { type: "application/pdf" }
-  );
-
-  /* ---------- TRY EMAIL WITH ATTACHMENT ---------- */
-  if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-    try {
-      await navigator.share({
-        files: [pdfFile],
-        title: "Awizacja dostawy",
-        text: EMAIL_BODY
-      });
-      show("ok","✓ Otwarto klienta e‑mail z załącznikiem");
-      return;
-    } catch(e){
-      /* fall through */
-    }
-  }
-
-  /* ---------- FALLBACK ---------- */
-  pdf.save("awizacja_dostawy.pdf");
 
   const safeSupplier = sanitizeSupplier(supplier.value);
   pdf.save(`awizacja_delpharm_${safeSupplier}.pdf`);
-  
+
   const mailto =
     "mailto:" + encodeURIComponent(EMAIL_TO) +
     "?subject=" + encodeURIComponent(EMAIL_SUBJECT) +
     "&body=" + encodeURIComponent(EMAIL_BODY);
 
-  
   window.location.href = mailto;
-
-  show("ok","✓ Pobierz PDF i wyślij e‑mail ręcznie");
-}
-  
   show("ok","✓ PDF pobrany i otwarto e‑mail");
+}
 </script>
 
 </body>
