@@ -172,7 +172,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{
 let lang="pl";
 const statusBox=document.getElementById("status");
 
-const EMAIL_TO = "Wojciech.x.OSTROWSKI@delpharm.com";
+const EMAIL_TO = "cyprian.m.latka@delpharm.com";
 const EMAIL_SUBJECT = "Witam uprzejmie, Panie Piotrze. Proszę o zatwierdzenie awizacji.";
 const EMAIL_BODY = "W załączniku przesyłam awizację dostawy.\n\nPozdrawiam";
 
@@ -191,6 +191,7 @@ const I18N={
     err_hour:"Wybierz godzinę",
     err_pallets:"Palety: wpisz „-” lub liczbę ≥ 1",
     infoTitle:"Informacje",
+    confirm_done: "✓ PDF pobrany, proszę o załączenie go do maila.",
     infoItems:[
       "<b>Finalna data i godzina rozładunku</b> zostaną podane przez <b>DELPHARM</b>",
       "<b>Przyjmujemy tylko palety EUR / EPAL</b>"
@@ -210,6 +211,7 @@ const I18N={
     err_hour:"Select time slot",
     err_pallets:"Pallets: '-' or number ≥ 1",
     infoTitle:"Information",
+    confirm_done: "✓ PDF downloaded. Please attach it to the email.",
     infoItems:[
       "<b>Final unloading date and time</b> will be provided by <b>DELPHARM</b>",
       "<b>We accept EUR / EPAL pallets only</b>"
@@ -315,7 +317,7 @@ async function generate(){
     "&body=" + encodeURIComponent(EMAIL_BODY);
 
   window.location.href = mailto;
-  show("ok","✓ PDF pobrany i otwarto e‑mail");
+  show("ok", I18N[lang].confirm_done);
 }
 </script>
 
