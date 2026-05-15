@@ -40,11 +40,8 @@ body{
   width:100%;
   max-width:1600px;
   display:grid;
-  grid-template-columns: 0.9fr 2.0fr;
+  grid-template-columns:0.9fr 2fr;
   gap:32px;
-}
-@media (max-width:900px){
-  .wrapper{grid-template-columns:1fr}
 }
 .card{
   background:var(--card);
@@ -53,20 +50,8 @@ body{
   padding:36px;
   box-shadow:var(--shadow);
 }
-.info-title{font-size:1.3rem;margin-bottom:18px}
-.info-list{padding-left:18px}
-.info-list li{margin-bottom:18px;line-height:1.55}
-.info-img{margin-top:26px;display:flex;justify-content:center}
-.info-img img{
-  width:96%;
-  border-radius:18px;
-  border:1px solid var(--border);
-  box-shadow:var(--shadow);
-  background:#fff;
-  padding:14px;
-}
 .field{margin-bottom:22px}
-label{display:block;font-size:1rem;color:var(--muted);margin-bottom:8px}
+label{display:block;color:var(--muted);margin-bottom:8px}
 input,select{
   width:100%;
   background:var(--bg-soft);
@@ -74,9 +59,7 @@ input,select{
   border-radius:14px;
   padding:18px 20px;
   color:var(--text);
-  font-size:1.05rem;
 }
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 button{
   width:100%;
   padding:18px;
@@ -85,80 +68,56 @@ button{
   border:1px solid var(--accent);
   border-radius:16px;
   cursor:pointer;
-  font-size:1.05rem;
 }
-.lang-btn{width:auto;padding:8px 14px;font-size:.9rem;margin-bottom:14px}
 .status{margin-top:24px;padding:18px;border-radius:14px;display:none}
 .status.ok{display:block;background:rgba(46,204,113,.15);color:var(--ok)}
 .status.err{display:block;background:rgba(255,92,92,.15);color:var(--err)}
-input[type="date"]::-webkit-calendar-picker-indicator{
-  filter: invert(48%) sepia(90%) saturate(500%) hue-rotate(185deg) brightness(100%);
-  cursor:pointer;
-}
 </style>
 </head>
 
 <body>
 
 <div class="wrapper">
-
-  <!-- LEFT -->
   <div class="card">
-    <div class="info-title" id="infoTitle"></div>
-    <ul class="info-list" id="infoList"></ul>
-    <div class="info-img">
-      <img src="image.png" alt="EPAL pallet">
-    </div>
+    <div id="infoTitle"></div>
+    <ul id="infoList"></ul>
+    <img src="image.png" alt="EPAL pallet" style="width:100%">
   </div>
 
-  <!-- RIGHT -->
   <div class="card">
-    <div style="text-align:right">
-      <button class="lang-btn" id="langToggle" onclick="toggleLang()">EN</button>
-    </div>
+    <button onclick="toggleLang()">EN</button>
 
     <h1 data-i18n="title"></h1>
-    <p data-i18n="subtitle" style="color:var(--muted)"></p>
-
-    <hr style="margin:28px 0;border:0;border-top:1px solid var(--border)">
+    <p data-i18n="subtitle"></p>
 
     <div class="field">
       <label data-i18n="supplier"></label>
       <input id="supplier">
     </div>
 
-    <div class="row2">
-      <div class="field">
-        <label data-i18n="date"></label>
-        <input type="date" id="date">
-      </div>
-      <div class="field">
-        <label data-i18n="hour"></label>
-        <select id="hour">
-          <option value="">—</option>
-          <option>08:00</option><option>08:15</option><option>08:30</option><option>08:45</option>
-          <option>09:00</option><option>09:15</option><option>09:30</option><option>09:45</option>
-          <option>10:00</option><option>10:15</option><option>10:30</option><option>10:45</option>
-          <option>11:00</option><option>11:15</option><option>11:30</option><option>11:45</option>
-          <option>12:00</option><option>12:15</option><option>12:30</option><option>12:45</option>
-          <option>13:00</option><option>13:15</option><option>13:30</option><option>13:45</option>
-          <option>14:00</option><option>14:15</option><option>14:30</option><option>14:45</option>
-          <option>15:00</option><option>15:15</option><option>15:30</option><option>15:45</option>
-          <option>16:00</option><option>16:15</option><option>16:30</option><option>16:45</option>
-          <option>17:00</option><option>17:15</option><option>17:30</option><option>17:45</option>
-          <option>18:00</option><option>18:15</option><option>18:30</option><option>18:45</option>
-        </select>
-      </div>
+    <div class="field">
+      <label data-i18n="date"></label>
+      <input type="date" id="date">
+    </div>
+
+    <div class="field">
+      <label data-i18n="hour"></label>
+      <select id="hour">
+        <option value="">—</option>
+        <option>08:00</option>
+        <option>08:15</option>
+        <option>08:30</option>
+      </select>
     </div>
 
     <div class="field">
       <label data-i18n="pallets"></label>
-      <input id="pallets" value="-" placeholder="-">
+      <input id="pallets" value="-">
     </div>
 
     <div class="field">
       <label data-i18n="info"></label>
-      <input id="info" maxlength="80">
+      <input id="info">
     </div>
 
     <button onclick="generate()" data-i18n="generate"></button>
@@ -168,198 +127,61 @@ input[type="date"]::-webkit-calendar-picker-indicator{
 
 <div id="qr" style="display:none"></div>
 
-  <script>
-    let lang="pl";
-    const statusBox=document.getElementById("status");
-    
-      
-    const EMAIL_TO = "cyprian.m.latka@delpharm.com";
-    const EMAIL_SUBJECT = "Witam uprzejmie, Panie Piotrze. Proszę o zatwierdzenie awizacji.";
-    const EMAIL_BODY = "W załączniku przesyłam awizację dostawy.\n\nPozdrawiam";
-    
-    
-    const I18N={
-      pl:{
-        title:"Awizacje DPH",
-        subtitle:"Stwórz awizację",
-        supplier:"Dostawca",
-        date:"Data dostawy",
-        hour:"Godzina",
-        pallets:"Liczba palet (wpisz „-” jeśli nie dotyczy)",
-        info:"Informacja",
-        generate:"Potwierdź",
-        ok:"✓ Awizacja wygenerowana",
-        err_supplier:"Podaj dostawcę",
-        err_date:"Wybierz datę",
-        err_hour:"Wybierz godzinę",
-        err_pallets:"Palety: wpisz „-” lub liczbę ≥ 1",
-        infoTitle:"Informacje",
-        infoItems:[
-          "<b>Finalna data i godzina rozładunku</b> zostaną podane przez <b>DELPHARM</b>",
-          "<b>Przyjmujemy tylko palety EUR / EPAL</b>"
-        ]
-      },
-      en:{
-        title:"DPH Notifications",
-        subtitle:"Create delivery notification",
-        supplier:"Supplier",
-        date:"Delivery date",
-        hour:"Time slot",
-        pallets:"Number of pallets (type “-” if not applicable)",
-        info:"Information",
-        generate:"Generate",
-        ok:"✓ Notification generated",
-        err_supplier:"Enter supplier",
-        err_date:"Select delivery date",
-        err_hour:"Select time slot",
-        err_pallets:"Pallets: type “-” or number ≥ 1",
-        infoTitle:"Information",
-        infoItems:[
-          "<b>Final unloading date and time</b> will be provided by <b>DELPHARM</b>",
-          "<b>We accept EUR / EPAL pallets only</b>"
-        ]
-      }
-    };
-    
-    function applyLang(){
-      document.querySelectorAll("[data-i18n]").forEach(el=>{
-        el.textContent=I18N[lang][el.dataset.i18n];
-      });
-      document.getElementById("langToggle").textContent=lang==="pl"?"EN":"PL";
-      document.getElementById("infoTitle").textContent=I18N[lang].infoTitle;
-      const list=document.getElementById("infoList");
-      list.innerHTML="";
-      I18N[lang].infoItems.forEach(t=>{
-        const li=document.createElement("li");
-        li.innerHTML=t;
-        list.appendChild(li);
-      });
-    }
-    function toggleLang(){lang=lang==="pl"?"en":"pl";applyLang();}
-    applyLang();
-    
-    function show(type,msg){
-      statusBox.className="status "+type;
-      statusBox.textContent=msg;
-    }
-    
-    function sanitizeSupplier(v){
-      return v.toUpperCase().replace(/\s+/g,"_").replace(/[^A-Z0-9_]/g,"").slice(0,40);
-    }
-    
-    function sanitizeInfo(v){
-      return v.toUpperCase().replace(/[^A-Z0-9 \/.-]/g, "").slice(0, 80);
-    }
-    
-    
-    function encodeDeliveryBase64(supplier,dateISO,hour,pallets,info){
-      const supBytes=new TextEncoder().encode(sanitizeSupplier(supplier));
-      const infBytes=new TextEncoder().encode(sanitizeInfo(info));
-      const buf=new ArrayBuffer(1+supBytes.length+4+1+2+1+infBytes.length);
-      const view=new DataView(buf); let o=0;
-      view.setUint8(o++,supBytes.length);
-      new Uint8Array(buf,o,supBytes.length).set(supBytes); o+=supBytes.length;
-      const days=Math.floor((new Date(dateISO)-new Date("1970-01-01"))/86400000);
-      view.setUint32(o,days); o+=4;
-      const [h,m]=hour.split(":").map(Number);
-      view.setUint8(o++,((h*60+m)-480)/15);
-      view.setUint16(o,pallets==="-"?0:Number(pallets)); o+=2;
-      view.setUint8(o++,infBytes.length);
-      new Uint8Array(buf,o,infBytes.length).set(infBytes);
-      return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-    }
-    
-    async function generate(){
-      if(!supplier.value.trim()) return show("err",I18N[lang].err_supplier);
-      if(!date.value) return show("err",I18N[lang].err_date);
-      if(!hour.value) return show("err",I18N[lang].err_hour);
-    
-      const p = pallets.value.trim();
-      if(p !== "-" && !/^[1-9][0-9]*$/.test(p))
-        return show("err",I18N[lang].err_pallets);
-    
-      const payload = encodeDeliveryBase64(
-        supplier.value,
-        date.value,
-        hour.value,
-        p,
-        info.value
-      );
-    
-      /* ---------- QR ---------- */
-      const qr = document.getElementById("qr");
-      qr.innerHTML = "";
-      new QRCode(qr, { text: payload, width: 200, height: 200 });
-    
-      await new Promise(requestAnimationFrame);
-    
-      const canvas = qr.querySelector("canvas");
-      if (!canvas) return show("err","QR generation failed");
-    
-      const qrImg = canvas.toDataURL("image/png");
-    
-      /* ---------- PDF ---------- */
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF();
-    
-      pdf.setFontSize(16);
-      pdf.text("AWIZACJA DOSTAWY / DELIVERY NOTIFICATION", 20, 20);
-    
-      pdf.setFontSize(12);
-      pdf.text("Dostawca / Supplier: " + sanitizeSupplier(supplier.value), 20, 35);
-      pdf.text("Data / Date: " + date.value, 20, 45);
-      pdf.text("Godzina / Time: " + hour.value, 20, 55);
-      pdf.text("Palety / Pallets: " + p, 20, 65);
-      pdf.text("Informacja / Information: " + sanitizeInfo(info.value), 20, 75);
-    
-      pdf.text("DPH Code:", 20, 95);
-      pdf.setFont("courier", "normal");
-      pdf.text(payload, 20, 105, { maxWidth: 170 });
-    
-      pdf.addImage(qrImg, "PNG", 60, 150, 90, 90);
-    
-      /* ---------- CREATE FILE (SAFE WAY) ---------- */
-      const pdfArrayBuffer = pdf.output("arraybuffer");
-      const pdfBlob = new Blob(
-        [pdfArrayBuffer],
-        { type: "application/pdf" }
-      );
-  
-      const pdfFile = new File(
-        [pdfBlob],
-        "awizacja_dostawy.pdf",
-        { type: "application/pdf" }
-      );
-    
-      /* ---------- TRY EMAIL WITH ATTACHMENT ---------- */
-      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-        try {
-          await navigator.share({
-            files: [pdfFile],
-            title: "Awizacja dostawy",
-            text: EMAIL_BODY
-          });
-          show("ok","✓ Otwarto klienta e‑mail z załącznikiem");
-          return;
-        } catch(e){
-          /* fall through */
-        }
-      }
-  
-    /* ---------- FALLBACK ---------- */
-    const safeSupplier = sanitizeSupplier(supplier.value);
-    pdf.save(`awizacja_delpharm_${safeSupplier}.pdf`);
-    
-    const mailto =
-      "mailto:" + encodeURIComponent(EMAIL_TO) +
-      "?subject=" + encodeURIComponent(EMAIL_SUBJECT) +
-      "&body=" + encodeURIComponent(EMAIL_BODY);
-    
-    window.location.href = mailto;
-    
-    show("ok","✓ PDF pobrany i otwarto e‑mail");
-    }
-  </script>
+<script>
+let lang="pl";
+const statusBox=document.getElementById("status");
+
+const EMAIL_TO="cyprian.m.latka@delpharm.com";
+const EMAIL_SUBJECT="Witam uprzejmie, Panie Piotrze. Proszę o zatwierdzenie awizacji.";
+const EMAIL_BODY="W załączniku przesyłam awizację dostawy.\n\nPozdrawiam";
+
+const I18N={
+  pl:{title:"Awizacje DPH",subtitle:"Stwórz awizację",supplier:"Dostawca",date:"Data",hour:"Godzina",pallets:"Palety",info:"Informacja",generate:"Potwierdź"},
+  en:{title:"DPH Notifications",subtitle:"Create notification",supplier:"Supplier",date:"Date",hour:"Time",pallets:"Pallets",info:"Info",generate:"Generate"}
+};
+
+function applyLang(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    el.textContent=I18N[lang][el.dataset.i18n];
+  });
+}
+function toggleLang(){lang=lang==="pl"?"en":"pl";applyLang();}
+applyLang();
+
+function show(type,msg){
+  statusBox.className="status "+type;
+  statusBox.textContent=msg;
+}
+
+function sanitizeSupplier(v){
+  return v.toUpperCase().replace(/\s+/g,"_").replace(/[^A-Z0-9_]/g,"");
+}
+
+async function generate(){
+  const qr=document.getElementById("qr");
+  qr.innerHTML="";
+  new QRCode(qr,{text:"TEST",width:200,height:200});
+  await new Promise(requestAnimationFrame);
+  const canvas=qr.querySelector("canvas");
+  const qrImg=canvas.toDataURL("image/png");
+
+  const {jsPDF}=window.jspdf;
+  const pdf=new jsPDF();
+  pdf.text("AWIZACJA DOSTAWY",20,20);
+  pdf.addImage(qrImg,"PNG",60,60,90,90);
+
+  const safeSupplier=sanitizeSupplier(supplier.value);
+  pdf.save(`awizacja_delpharm_${safeSupplier}.pdf`);
+
+  const mailto=
+    "mailto:"+encodeURIComponent(EMAIL_TO)+
+    "?subject="+encodeURIComponent(EMAIL_SUBJECT)+
+    "&body="+encodeURIComponent(EMAIL_BODY);
+
+  window.location.href=mailto;
+  show("ok","✓ PDF pobrany i otwarto e‑mail");
+}
+</script>
 
 </body>
 </html>
