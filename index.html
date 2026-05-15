@@ -95,6 +95,17 @@ input[type="date"]::-webkit-calendar-picker-indicator{
   filter: invert(48%) sepia(90%) saturate(500%) hue-rotate(185deg) brightness(100%);
   cursor:pointer;
 }
+  
+.info-list a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.info-list a:hover {
+  text-decoration: underline;
+}
+
 </style>
 </head>
 
@@ -107,7 +118,6 @@ input[type="date"]::-webkit-calendar-picker-indicator{
     <div class="info-title" id="infoTitle"></div>
     <ul class="info-list" id="infoList"></ul>
     <div class="info-img">
-      <img src="image.png" alt="EPAL pallet">
     </div>
   </div>
 
@@ -192,13 +202,14 @@ const I18N={
     err_pallets:"Palety: wpisz „-” lub liczbę ≥ 1",
     infoTitle:"Informacje",
     confirm_done: "✓ PDF pobrany, proszę o załączenie go do maila.",
-    infoItems:[
+    infoItems: [
       "<b>Finalna data i godzina rozładunku</b> zostaną podane przez <b>DELPHARM</b>",
-      "<b>Przyjmujemy tylko palety EUR / EPAL</b>",
-      `<div class="info-img">
-           <img src="image.png" alt="EPAL pallet">
-         </div>`,
-      `<b>Proszę o wysłanie wygenerowanego pliku PDF na adres e-mail: </b> <a href="mailto:${EMAIL_TO}">${EMAIL_TO}</a>`
+      `<b>Przyjmujemy tylko palety EUR / EPAL</b>
+       <div class="info-img">
+         <img src="image.png" alt="EPAL pallet">
+       </div>`,
+      `<b>Proszę o wysłanie wygenerowanego pliku PDF na adres e-mail:</b>
+       <a href="mailto:${EMAIL_TO}">${EMAIL_TO}</a>`
     ]
   },
   en:{
@@ -216,13 +227,14 @@ const I18N={
     err_pallets:"Pallets: '-' or number ≥ 1",
     infoTitle:"Information",
     confirm_done: "✓ PDF downloaded. Please attach it to the email.",
-    infoItems:[
+    infoItems: [
       "<b>Final unloading date and time</b> will be provided by <b>DELPHARM</b>",
-      "<b>We accept EUR / EPAL pallets only</b>",
-      `<div class="info-img">
-           <img src="image.png" alt="EPAL pallet">
-         </div>`,
-      `<b>Please send the generated PDF file to the following email address:</b> <a href="mailto:${EMAIL_TO}">${EMAIL_TO}</a>`
+      `<b>We accept EUR / EPAL pallets only</b>
+       <div class="info-img">
+         <img src="image.png" alt="EPAL pallet">
+       </div>`,
+      `<b>Please send the generated PDF file to the following email address:</b>
+       <a href="mailto:${EMAIL_TO}">${EMAIL_TO}</a>`
     ]
   }
 };
